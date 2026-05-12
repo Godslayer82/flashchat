@@ -3,320 +3,369 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FLashChat</title>
+  <title>JacksonChat</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --bg: #0a0a0a;
-      --surface: #141414;
-      --border: #222;
-      --text: #f0f0f0;
-      --muted: #555;
-      --accent: #fff;
-      --danger: #444;
+      --surface: #111;
+      --surface2: #161616;
+      --border: #1e1e1e;
+      --border2: #2a2a2a;
+      --text: #ececec;
+      --muted: #4a4a4a;
+      --muted2: #666;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Courier New', monospace;
-      font-size: 14px;
+      font-size: 13px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 16px;
     }
 
-    h1 {
-      font-size: 18px;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      margin-bottom: 40px;
-      color: var(--text);
-      font-weight: normal;
-    }
-
+    /* ───── AUTH ───── */
     #auth-screen {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
+      margin-top: 30vh;
       width: 100%;
-      max-width: 320px;
+      max-width: 300px;
+      padding: 0 16px;
     }
-
-    #auth-screen p {
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 2px;
+    #auth-screen h1 {
+      font-size: 16px;
+      letter-spacing: 8px;
       text-transform: uppercase;
+      font-weight: normal;
     }
-
+    #auth-screen p { color: var(--muted2); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
     .btn-google {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 24px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      width: 100%;
-      justify-content: center;
-      transition: border-color 0.15s, background 0.15s;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); padding: 11px 20px; cursor: pointer;
+      font-family: inherit; font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; width: 100%; justify-content: center;
+      transition: border-color .15s, background .15s;
     }
-    .btn-google:hover { border-color: #444; background: #1a1a1a; }
+    .btn-google:hover { border-color: #333; background: #161616; }
 
-    .btn-google svg { flex-shrink: 0; }
-
+    /* ───── LAYOUT ───── */
     #app {
       display: none;
       width: 100%;
-      max-width: 640px;
+      max-width: 900px;
+      height: 100vh;
+      flex-direction: row;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      display: flex;
       flex-direction: column;
-      gap: 0;
+      height: 100vh;
     }
 
-    #topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0 20px;
+    #sidebar-top {
+      padding: 18px 14px 14px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
     }
-
-    #topbar .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    #topbar img {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-    }
-
-    #topbar .username {
-      font-size: 12px;
-      letter-spacing: 1px;
-      color: var(--muted);
-    }
-
-    #btn-signout {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 5px 12px;
-      cursor: pointer;
-      font-family: inherit;
+    #sidebar-top .logo {
       font-size: 11px;
-      letter-spacing: 2px;
+      letter-spacing: 5px;
       text-transform: uppercase;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    #btn-signout:hover { border-color: #555; color: var(--text); }
-
-    .section { margin-bottom: 28px; }
-
-    .section-label {
-      font-size: 10px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+      color: var(--muted2);
     }
 
-    .row {
+    #nav-tabs {
       display: flex;
-      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-tab {
+      flex: 1; padding: 9px 0;
+      text-align: center; font-size: 10px;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      border: none; background: none; font-family: inherit;
+      transition: color .15s;
+      border-bottom: 1px solid transparent;
+      margin-bottom: -1px;
+    }
+    .nav-tab:hover { color: var(--muted2); }
+    .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+    .sidebar-panel { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+    .sidebar-panel.active { display: flex; }
+
+    /* Friends */
+    .friend-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .friend-item:hover { background: var(--surface2); }
+    .friend-item.active-chat { background: var(--surface2); }
+
+    .friend-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--border2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--muted2); flex-shrink: 0;
+    }
+    .friend-name { font-size: 12px; color: var(--text); }
+    .list-empty { padding: 14px; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+    /* Requests */
+    .req-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
+    .req-name { font-size: 12px; }
+    .req-actions { display: flex; gap: 5px; }
+
+    /* Profile */
+    #tab-profile { padding: 16px 14px; gap: 16px; }
+    .profile-top {
+      display: flex; align-items: center; gap: 12px;
+      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar-lg {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--border2); border: 1px solid var(--border2);
+      overflow: hidden; display: flex; align-items: center;
+      justify-content: center; font-size: 16px; color: var(--muted2); flex-shrink: 0;
+    }
+    .profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-uname { font-size: 13px; }
+    .profile-email { font-size: 10px; color: var(--muted2); margin-top: 2px; word-break: break-all; }
+    .field-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    input.field {
+      flex: 1; background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); padding: 8px 10px; font-family: inherit;
+      font-size: 12px; outline: none; transition: border-color .15s;
+    }
+    input.field:focus { border-color: #333; }
+    input.field::placeholder { color: var(--muted); }
+
+    /* Sidebar bottom */
+    #sidebar-bottom { border-top: 1px solid var(--border); padding: 10px 14px; margin-top: auto; }
+
+    /* ── Main ── */
+    #main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    #chat-header {
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px; color: var(--muted2);
+      height: 49px; display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0;
     }
 
-    input[type="text"] {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 12px;
-      font-family: inherit;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.15s;
+    #add-friend-bar {
+      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-    input[type="text"]:focus { border-color: #444; }
-    input[type="text"]::placeholder { color: var(--muted); }
+    #add-friend-bar input {
+      flex: 1; background: transparent; border: none;
+      border-right: 1px solid var(--border); color: var(--text);
+      padding: 10px 16px; font-family: inherit; font-size: 12px; outline: none;
+    }
+    #add-friend-bar input::placeholder { color: var(--muted); }
 
-    button.action {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 10px 16px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+    #chat-area {
+      flex: 1; overflow-y: auto;
+      padding: 16px 20px; display: flex; flex-direction: column; gap: 6px;
+    }
+    #chat-area::-webkit-scrollbar { width: 3px; }
+    #chat-area::-webkit-scrollbar-thumb { background: var(--border2); }
+
+    .chat-placeholder {
+      margin: auto; font-size: 11px; color: var(--muted);
+      letter-spacing: 2px; text-align: center; line-height: 2.2;
+    }
+
+    .msg-row { display: flex; flex-direction: column; }
+    .msg-row.me { align-items: flex-end; }
+    .msg-row.them { align-items: flex-start; }
+    .msg-sender { font-size: 10px; color: var(--muted2); margin-bottom: 3px; padding: 0 2px; }
+    .msg-bubble {
+      max-width: 70%; padding: 8px 12px;
+      font-size: 13px; line-height: 1.5; word-break: break-word;
+    }
+    .msg-row.me .msg-bubble { background: var(--surface2); border: 1px solid var(--border2); }
+    .msg-row.them .msg-bubble { background: transparent; border: 1px solid var(--border); }
+
+    #input-bar { border-top: 1px solid var(--border); display: flex; flex-shrink: 0; }
+    #msg-input {
+      flex: 1; background: transparent; border: none;
+      color: var(--text); padding: 14px 16px;
+      font-family: inherit; font-size: 13px; outline: none;
+    }
+    #msg-input::placeholder { color: var(--muted); }
+    #msg-input:disabled { opacity: .3; }
+
+    /* Buttons */
+    button.plain {
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      padding: 5px 10px; cursor: pointer; font-family: inherit;
+      font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      transition: border-color .15s, color .15s;
+    }
+    button.plain:hover { border-color: #444; color: var(--text); }
+
+    button.icon-btn {
+      background: none; border: none; border-left: 1px solid var(--border);
+      color: var(--muted2); padding: 0 18px; cursor: pointer;
+      font-family: inherit; font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      transition: color .15s, background .15s;
+    }
+    button.icon-btn:hover { color: var(--text); background: var(--surface2); }
+    button.icon-btn:disabled { opacity: .3; cursor: default; }
+
+    button.add-btn {
+      background: none; border: none; border-left: 1px solid var(--border);
+      color: var(--muted2); padding: 0 16px; cursor: pointer;
+      font-family: inherit; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      transition: color .15s;
+    }
+    button.add-btn:hover { color: var(--text); }
+
+    button.signout-btn {
+      width: 100%; background: none; border: 1px solid var(--border);
+      color: var(--muted); padding: 8px; cursor: pointer;
+      font-family: inherit; font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      transition: border-color .15s, color .15s;
+    }
+    button.signout-btn:hover { border-color: #333; color: var(--text); }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--muted2); padding: 8px 18px; font-size: 11px;
+      letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s;
       white-space: nowrap;
-      transition: border-color 0.15s, background 0.15s;
     }
-    button.action:hover { border-color: #444; background: #1a1a1a; }
+    #toast.show { opacity: 1; }
 
-    ul { list-style: none; }
+    .sidebar-panel::-webkit-scrollbar { width: 3px; }
+    .sidebar-panel::-webkit-scrollbar-thumb { background: var(--border2); }
 
-    #requests li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-
-    #requests li:last-child { border-bottom: none; }
-
-    #requests li .req-name { color: var(--text); }
-
-    button.accept {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 4px 10px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    button.accept:hover { border-color: #555; color: var(--text); }
-
-    #chat-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      height: 220px;
-      overflow-y: auto;
-      padding: 12px;
-      margin-bottom: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    #chat-box::-webkit-scrollbar { width: 4px; }
-    #chat-box::-webkit-scrollbar-track { background: transparent; }
-    #chat-box::-webkit-scrollbar-thumb { background: var(--border); }
-
-    .chat-msg {
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .chat-msg .from {
-      color: var(--muted);
-      margin-right: 6px;
-    }
-
-    .chat-msg .from.me { color: var(--text); }
-
-    .chat-msg .body { color: var(--text); }
-
-    #no-msg {
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 1px;
-      margin: auto;
-    }
-
-    #status {
-      font-size: 11px;
-      letter-spacing: 1px;
-      color: var(--muted);
-      min-height: 16px;
-      margin-top: 4px;
+    @media (max-width: 560px) {
+      #sidebar { width: 150px; }
+      .msg-bubble { max-width: 85%; }
     }
   </style>
 </head>
 <body>
 
-<h1>FlashChat</h1>
-
+<!-- AUTH -->
 <div id="auth-screen">
-  <p>Sign in to continue</p>
+  <h1>JacksonChat</h1>
+  <p>sign in to continue</p>
   <button class="btn-google" onclick="signInWithGoogle()">
-    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.9 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15 16.1 19.1 13 24 13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 16.2 3 9.5 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.8 0 10.8-1.9 14.7-5.2l-6.8-5.6C29.9 36 27.1 37 24 37c-5.8 0-10.7-3.9-12.4-9.2l-7 5.4C8.1 40.5 15.4 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-1 3-3.3 5.5-6.3 7l6.8 5.6C40.9 37.5 45 31.5 45 24c0-1.3-.2-2.7-.5-4z"/></svg>
+    <svg width="16" height="16" viewBox="0 0 48 48">
+      <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.9 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"/>
+      <path fill="#34A853" d="M6.3 14.7l7 5.1C15 16.1 19.1 13 24 13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 16.2 3 9.5 7.9 6.3 14.7z"/>
+      <path fill="#FBBC05" d="M24 45c5.8 0 10.8-1.9 14.7-5.2l-6.8-5.6C29.9 36 27.1 37 24 37c-5.8 0-10.7-3.9-12.4-9.2l-7 5.4C8.1 40.5 15.4 45 24 45z"/>
+      <path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-1 3-3.3 5.5-6.3 7l6.8 5.6C40.9 37.5 45 31.5 45 24c0-1.3-.2-2.7-.5-4z"/>
+    </svg>
     Sign in with Google
   </button>
 </div>
 
+<!-- APP -->
 <div id="app">
-  <div id="topbar">
-    <div class="user-info">
-      <img id="user-avatar" src="" alt="" />
-      <span class="username" id="user-name"></span>
+  <div id="sidebar">
+    <div id="sidebar-top"><span class="logo">JChat</span></div>
+
+    <div id="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('friends')">Friends</button>
+      <button class="nav-tab" id="req-tab" onclick="switchTab('requests')">Requests</button>
+      <button class="nav-tab" onclick="switchTab('profile')">Profile</button>
     </div>
-    <button id="btn-signout" onclick="signOut()">Sign out</button>
+
+    <!-- Friends panel -->
+    <div id="tab-friends" class="sidebar-panel active">
+      <div id="friends-list"><div class="list-empty">no friends yet</div></div>
+    </div>
+
+    <!-- Requests panel -->
+    <div id="tab-requests" class="sidebar-panel">
+      <div id="requests-list"><div class="list-empty">no requests</div></div>
+    </div>
+
+    <!-- Profile panel -->
+    <div id="tab-profile" class="sidebar-panel">
+      <div class="profile-top">
+        <div class="profile-avatar-lg"><img id="profile-img" src="" alt="" /></div>
+        <div>
+          <div class="profile-uname" id="profile-uname"></div>
+          <div class="profile-email" id="profile-email"></div>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Change username</div>
+        <div style="display:flex;gap:6px">
+          <input class="field" id="new-username" placeholder="new username" />
+          <button class="plain" onclick="changeUsername()">Save</button>
+        </div>
+        <div id="uname-hint" style="font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px">
+          letters, numbers, underscores — 2 to 20 chars
+        </div>
+      </div>
+    </div>
+
+    <div id="sidebar-bottom">
+      <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+    </div>
   </div>
 
-  <div class="section">
-    <div class="section-label">Friend Request</div>
-    <div class="row">
-      <input type="text" id="toUser" placeholder="username" />
-      <button class="action" onclick="sendRequest()">Send</button>
+  <div id="main">
+    <div id="chat-header">
+      <span id="chat-header-text" style="color:var(--muted);letter-spacing:1px">select a friend to chat</span>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-label">Incoming Requests</div>
-    <ul id="requests"><li style="color:#555;font-size:12px;letter-spacing:1px">None</li></ul>
-  </div>
+    <div id="add-friend-bar">
+      <input type="text" id="friend-input" placeholder="add friend by username..." onkeydown="if(event.key==='Enter')sendRequest()" />
+      <button class="add-btn" onclick="sendRequest()">+ Add</button>
+    </div>
 
-  <div class="section">
-    <div class="section-label">Chat</div>
-    <div class="row" style="margin-bottom:8px">
-      <input type="text" id="chatTo" placeholder="friend's username" />
+    <div id="chat-area">
+      <div class="chat-placeholder">select a friend<br/>to start chatting</div>
     </div>
-    <div id="chat-box"><span id="no-msg">no messages</span></div>
-    <div class="row">
-      <input type="text" id="msg" placeholder="message" onkeydown="if(event.key==='Enter')sendMessage()" />
-      <button class="action" onclick="sendMessage()">Send</button>
+
+    <div id="input-bar">
+      <input type="text" id="msg-input" placeholder="message..." disabled onkeydown="if(event.key==='Enter')sendMessage()" />
+      <button class="icon-btn" id="send-btn" onclick="sendMessage()" disabled>Send</button>
     </div>
-    <div id="status"></div>
   </div>
 </div>
+
+<div id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
   import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut as fbSignOut,
-    onAuthStateChanged
+    getAuth, GoogleAuthProvider, signInWithPopup,
+    signOut as fbSignOut, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
   import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc,
-    updateDoc,
-    arrayUnion,
-    arrayRemove,
-    collection,
-    query,
-    where,
-    onSnapshot,
-    addDoc,
-    serverTimestamp,
-    orderBy
+    getFirestore, doc, setDoc, getDoc, updateDoc,
+    arrayUnion, arrayRemove, collection, query, where,
+    onSnapshot, addDoc, serverTimestamp, orderBy, getDocs
   } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -330,164 +379,242 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  getAnalytics(app);
   const auth = getAuth(app);
-  const db = getFirestore(app);
+  const db   = getFirestore(app);
 
-  let currentUser = null;
-  let chatUnsub = null;
+  let currentUser  = null;
+  let myUsername   = '';
+  let activeFriend = null;
+  let chatUnsub    = null;
+  let userUnsub    = null;
 
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ── Auth ──
   window.signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (e) {
-      setStatus(e.message);
-    }
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch(e) { toast(e.message); }
   };
-
-  window.signOut = () => fbSignOut(auth);
+  window.doSignOut = () => fbSignOut(auth);
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
       const uid = user.uid;
-      const username = user.displayName || user.email.split('@')[0];
-      await setDoc(doc(db, 'users', uid), {
-        uid,
-        username,
-        email: user.email,
-        photo: user.photoURL || ''
-      }, { merge: true });
+      const ref  = doc(db, 'users', uid);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        myUsername = (user.displayName || user.email.split('@')[0]).replace(/\s+/g,'_');
+        await setDoc(ref, {
+          uid, username: myUsername,
+          email: user.email, photo: user.photoURL||'',
+          friends: [], requests: []
+        });
+      } else {
+        myUsername = snap.data().username;
+      }
 
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
-      document.getElementById('user-name').textContent = username;
-      document.getElementById('user-avatar').src = user.photoURL || '';
-
-      listenRequests(uid);
+      refreshProfileUI();
+      startUserListener(uid);
     } else {
-      currentUser = null;
+      currentUser = null; myUsername = ''; activeFriend = null;
+      if (chatUnsub) chatUnsub();
+      if (userUnsub) userUnsub();
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app').style.display = 'none';
     }
   });
 
-  window.sendRequest = async () => {
-    const toUsername = document.getElementById('toUser').value.trim();
-    if (!toUsername) return;
+  function refreshProfileUI() {
+    document.getElementById('profile-uname').textContent = myUsername;
+    document.getElementById('profile-email').textContent = currentUser.email;
+    const img = document.getElementById('profile-img');
+    if (currentUser.photoURL) { img.src = currentUser.photoURL; }
+    else { img.style.display = 'none'; }
+  }
 
-    const q = query(collection(db, 'users'), where('username', '==', toUsername));
-    const snap = await import("https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js")
-      .then(m => m.getDocs(q));
-
-    if (snap.empty) { setStatus('User not found.'); return; }
-
-    const toUid = snap.docs[0].id;
-    if (toUid === currentUser.uid) { setStatus('Cannot add yourself.'); return; }
-
-    await updateDoc(doc(db, 'users', toUid), {
-      requests: arrayUnion(currentUser.displayName || currentUser.email.split('@')[0])
+  // ── Live listener ──
+  function startUserListener(uid) {
+    if (userUnsub) userUnsub();
+    userUnsub = onSnapshot(doc(db, 'users', uid), snap => {
+      const d = snap.data() || {};
+      renderFriends(d.friends || []);
+      renderRequests(d.requests || []);
     });
-    setStatus('Request sent.');
-    document.getElementById('toUser').value = '';
-  };
+  }
 
-  function listenRequests(uid) {
-    onSnapshot(doc(db, 'users', uid), (snap) => {
-      const data = snap.data();
-      const reqs = data?.requests || [];
-      const list = document.getElementById('requests');
-      list.innerHTML = '';
-      if (reqs.length === 0) {
-        list.innerHTML = '<li style="color:#555;font-size:12px;letter-spacing:1px">None</li>';
-        return;
-      }
-      reqs.forEach(req => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="req-name">${req}</span>`;
-        const btn = document.createElement('button');
-        btn.className = 'accept';
-        btn.textContent = 'Accept';
-        btn.onclick = () => acceptRequest(req, uid);
-        li.appendChild(btn);
-        list.appendChild(li);
+  function renderFriends(friends) {
+    const list = document.getElementById('friends-list');
+    if (!friends.length) {
+      list.innerHTML = '<div class="list-empty">no friends yet</div>'; return;
+    }
+    list.innerHTML = '';
+    friends.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'friend-item' + (activeFriend === f ? ' active-chat' : '');
+      div.innerHTML = `
+        <div class="friend-avatar">${esc(f.charAt(0).toUpperCase())}</div>
+        <span class="friend-name">${esc(f)}</span>
+      `;
+      div.onclick = () => openChat(f);
+      list.appendChild(div);
+    });
+  }
+
+  function renderRequests(reqs) {
+    const tab = document.getElementById('req-tab');
+    tab.textContent = reqs.length ? `Req (${reqs.length})` : 'Requests';
+    const list = document.getElementById('requests-list');
+    if (!reqs.length) {
+      list.innerHTML = '<div class="list-empty">no requests</div>'; return;
+    }
+    list.innerHTML = '';
+    reqs.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'req-item';
+      div.innerHTML = `
+        <span class="req-name">${esc(r)}</span>
+        <div class="req-actions">
+          <button class="plain" data-u="${esc(r)}" data-a="accept">Accept</button>
+          <button class="plain" data-u="${esc(r)}" data-a="decline">Decline</button>
+        </div>
+      `;
+      div.querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => btn.dataset.a === 'accept' ? acceptReq(r) : declineReq(r);
       });
+      list.appendChild(div);
     });
   }
 
-  async function acceptRequest(fromUsername, myUid) {
-    await updateDoc(doc(db, 'users', myUid), {
-      requests: arrayRemove(fromUsername),
-      friends: arrayUnion(fromUsername)
-    });
-    setStatus(`Accepted ${fromUsername}.`);
-  }
-
-  window.sendMessage = async () => {
-    const to = document.getElementById('chatTo').value.trim();
-    const msg = document.getElementById('msg').value.trim();
-    if (!to || !msg) return;
-
-    const me = currentUser.displayName || currentUser.email.split('@')[0];
-    const roomId = [me, to].sort().join('__');
-
-    await addDoc(collection(db, 'chats', roomId, 'messages'), {
-      from: me,
-      msg,
-      ts: serverTimestamp()
-    });
-
-    document.getElementById('msg').value = '';
-    loadChat(to);
+  // ── Add friend ──
+  window.sendRequest = async () => {
+    const toUsername = document.getElementById('friend-input').value.trim();
+    if (!toUsername) return;
+    if (toUsername === myUsername) { toast('Cannot add yourself.'); return; }
+    const snap = await getDocs(query(collection(db,'users'), where('username','==',toUsername)));
+    if (snap.empty) { toast('User not found.'); return; }
+    await updateDoc(doc(db,'users',snap.docs[0].id), { requests: arrayUnion(myUsername) });
+    toast(`Request sent to ${toUsername}.`);
+    document.getElementById('friend-input').value = '';
   };
 
-  document.getElementById('chatTo').addEventListener('change', () => {
-    loadChat(document.getElementById('chatTo').value.trim());
-  });
-  document.getElementById('chatTo').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') loadChat(document.getElementById('chatTo').value.trim());
-  });
+  async function acceptReq(fromUsername) {
+    await updateDoc(doc(db,'users',currentUser.uid), {
+      requests: arrayRemove(fromUsername), friends: arrayUnion(fromUsername)
+    });
+    // mutual add
+    const snap = await getDocs(query(collection(db,'users'), where('username','==',fromUsername)));
+    if (!snap.empty) {
+      await updateDoc(doc(db,'users',snap.docs[0].id), { friends: arrayUnion(myUsername) });
+    }
+    toast(`Added ${fromUsername}.`);
+  }
+  window.acceptReq = acceptReq;
 
-  function loadChat(to) {
+  async function declineReq(fromUsername) {
+    await updateDoc(doc(db,'users',currentUser.uid), { requests: arrayRemove(fromUsername) });
+    toast('Declined.');
+  }
+  window.declineReq = declineReq;
+
+  // ── Open chat ──
+  function openChat(friendName) {
+    activeFriend = friendName;
+
+    // highlight sidebar
+    document.querySelectorAll('.friend-item').forEach(el => {
+      el.classList.toggle('active-chat',
+        el.querySelector('.friend-name')?.textContent === friendName);
+    });
+
+    document.getElementById('chat-header-text').innerHTML =
+      `<span style="color:var(--muted)">chatting with</span>&nbsp;<span style="color:var(--text)">${esc(friendName)}</span>`;
+
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn  = document.getElementById('send-btn');
+    msgInput.disabled = false;
+    sendBtn.disabled  = false;
+    msgInput.focus();
+
     if (chatUnsub) chatUnsub();
-    if (!to) return;
+    const roomId = [myUsername, friendName].sort().join('__');
+    const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','asc'));
 
-    const me = currentUser.displayName || currentUser.email.split('@')[0];
-    const roomId = [me, to].sort().join('__');
-    const q = query(
-      collection(db, 'chats', roomId, 'messages'),
-      orderBy('ts', 'asc')
-    );
-
-    chatUnsub = onSnapshot(q, (snap) => {
-      const box = document.getElementById('chat-box');
-      box.innerHTML = '';
+    chatUnsub = onSnapshot(q, snap => {
+      const area = document.getElementById('chat-area');
+      area.innerHTML = '';
       if (snap.empty) {
-        box.innerHTML = '<span id="no-msg">no messages</span>';
-        return;
+        area.innerHTML = '<div class="chat-placeholder">no messages yet</div>'; return;
       }
       snap.docs.forEach(d => {
         const data = d.data();
-        const div = document.createElement('div');
-        div.className = 'chat-msg';
-        const isMe = data.from === me;
-        div.innerHTML = `<span class="from${isMe ? ' me' : ''}">${data.from}</span><span class="body">${escHtml(data.msg)}</span>`;
-        box.appendChild(div);
+        const isMe = data.from === myUsername;
+        const row  = document.createElement('div');
+        row.className = 'msg-row ' + (isMe ? 'me' : 'them');
+        row.innerHTML = `
+          <div class="msg-sender">${esc(data.from)}</div>
+          <div class="msg-bubble">${esc(data.msg)}</div>
+        `;
+        area.appendChild(row);
       });
-      box.scrollTop = box.scrollHeight;
+      area.scrollTop = area.scrollHeight;
     });
-  }
 
-  function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // Auto-switch to friends tab on mobile
+    switchTab('friends');
   }
+  window.openChat = openChat;
 
-  function setStatus(msg) {
-    const el = document.getElementById('status');
-    el.textContent = msg;
-    setTimeout(() => { el.textContent = ''; }, 3000);
-  }
+  // ── Send message ──
+  window.sendMessage = async () => {
+    if (!activeFriend) return;
+    const input = document.getElementById('msg-input');
+    const msg   = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    const roomId = [myUsername, activeFriend].sort().join('__');
+    await addDoc(collection(db,'chats',roomId,'messages'), {
+      from: myUsername, msg, ts: serverTimestamp()
+    });
+  };
+
+  // ── Change username ──
+  window.changeUsername = async () => {
+    const newName = document.getElementById('new-username').value.trim();
+    if (!newName) { toast('Enter a username.'); return; }
+    if (newName === myUsername) { toast('Same as current.'); return; }
+    if (!/^[a-zA-Z0-9_]{2,20}$/.test(newName)) {
+      toast('2–20 chars: letters, numbers, underscores only.'); return;
+    }
+    const snap = await getDocs(query(collection(db,'users'), where('username','==',newName)));
+    if (!snap.empty) { toast('Username already taken.'); return; }
+
+    await updateDoc(doc(db,'users',currentUser.uid), { username: newName });
+    myUsername = newName;
+    document.getElementById('profile-uname').textContent = newName;
+    document.getElementById('new-username').value = '';
+    toast('Username updated.');
+  };
+
+  // ── Tab switch ──
+  window.switchTab = (tab) => {
+    ['friends','requests','profile'].forEach((t, i) => {
+      document.querySelectorAll('.nav-tab')[i].classList.toggle('active', t === tab);
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    });
+  };
 </script>
 </body>
 </html>
