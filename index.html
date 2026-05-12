@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Messaging App</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <input id="username" placeholder="Enter name" />
+  <button onclick="login()">Login</button>
+
+  <hr>
+
+  <h3>Send Friend Request</h3>
+  <input id="toUser" placeholder="Username" />
+  <button onclick="sendRequest()">Send</button>
+
+  <h3>Friend Requests</h3>
+  <ul id="requests"></ul>
+
+  <h3>Chat</h3>
+  <input id="chatTo" placeholder="Friend name" />
+  <input id="msg" placeholder="Message" />
+  <button onclick="sendMessage()">Send</button>
+
+  <ul id="chat"></ul>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let user = "";
+
+    function login() {
+      user = document.getElementById("username").value;
+      socket.emit("login", user);
+    }
+
+    function sendRequest() {
+      socket.emit("send_request", document.getElementById("toUser").value);
+    }
+
+    function sendMessage() {
+      socket.emit("message", {
+        to: document.getElementById("chatTo").value,
+        msg: document.getElementById("msg").value
+      });
+    }
+
+    socket.on("update", (data) => {
+      const list = document.getElementById("requests");
+      list.innerHTML = "";
+
+      data.requests.forEach(req => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          ${req}
+          <button onclick="accept('${req}')">Accept</button>
+        `;
+        list.appendChild(li);
+      });
+    });
+
+    function accept(userFrom) {
+      socket.emit("accept_request", userFrom);
+    }
+
+    socket.on("message", (data) => {
+      const chat = document.getElementById("chat");
+      const li = document.createElement("li");
+      li.textContent = `${data.from}: ${data.msg}`;
+      chat.appendChild(li);
+    });
+
+    socket.on("refresh", () => {
+      socket.emit("login", user);
+    });
+  </script>
+</body>
+</html>
