@@ -1,78 +1,493 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Messaging App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FLashChat</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #222;
+      --text: #f0f0f0;
+      --muted: #555;
+      --accent: #fff;
+      --danger: #444;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px;
+    }
+
+    h1 {
+      font-size: 18px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      color: var(--text);
+      font-weight: normal;
+    }
+
+    #auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    #auth-screen p {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 24px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      width: 100%;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-google:hover { border-color: #444; background: #1a1a1a; }
+
+    .btn-google svg { flex-shrink: 0; }
+
+    #app {
+      display: none;
+      width: 100%;
+      max-width: 640px;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    #topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    #topbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #topbar img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+    }
+
+    #topbar .username {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    #btn-signout {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #btn-signout:hover { border-color: #555; color: var(--text); }
+
+    .section { margin-bottom: 28px; }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus { border-color: #444; }
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    button.action {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    button.action:hover { border-color: #444; background: #1a1a1a; }
+
+    ul { list-style: none; }
+
+    #requests li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    #requests li:last-child { border-bottom: none; }
+
+    #requests li .req-name { color: var(--text); }
+
+    button.accept {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    button.accept:hover { border-color: #555; color: var(--text); }
+
+    #chat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      height: 220px;
+      overflow-y: auto;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #chat-box::-webkit-scrollbar { width: 4px; }
+    #chat-box::-webkit-scrollbar-track { background: transparent; }
+    #chat-box::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .chat-msg {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .chat-msg .from {
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .chat-msg .from.me { color: var(--text); }
+
+    .chat-msg .body { color: var(--text); }
+
+    #no-msg {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin: auto;
+    }
+
+    #status {
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      min-height: 16px;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Login</h2>
-  <input id="username" placeholder="Enter name" />
-  <button onclick="login()">Login</button>
 
-  <hr>
+<h1>FlashChat</h1>
 
-  <h3>Send Friend Request</h3>
-  <input id="toUser" placeholder="Username" />
-  <button onclick="sendRequest()">Send</button>
+<div id="auth-screen">
+  <p>Sign in to continue</p>
+  <button class="btn-google" onclick="signInWithGoogle()">
+    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.9 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15 16.1 19.1 13 24 13c3.1 0 6 1.1 8.2 3l6-6C34.6 5.1 29.6 3 24 3 16.2 3 9.5 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.8 0 10.8-1.9 14.7-5.2l-6.8-5.6C29.9 36 27.1 37 24 37c-5.8 0-10.7-3.9-12.4-9.2l-7 5.4C8.1 40.5 15.4 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-1 3-3.3 5.5-6.3 7l6.8 5.6C40.9 37.5 45 31.5 45 24c0-1.3-.2-2.7-.5-4z"/></svg>
+    Sign in with Google
+  </button>
+</div>
 
-  <h3>Friend Requests</h3>
-  <ul id="requests"></ul>
+<div id="app">
+  <div id="topbar">
+    <div class="user-info">
+      <img id="user-avatar" src="" alt="" />
+      <span class="username" id="user-name"></span>
+    </div>
+    <button id="btn-signout" onclick="signOut()">Sign out</button>
+  </div>
 
-  <h3>Chat</h3>
-  <input id="chatTo" placeholder="Friend name" />
-  <input id="msg" placeholder="Message" />
-  <button onclick="sendMessage()">Send</button>
+  <div class="section">
+    <div class="section-label">Friend Request</div>
+    <div class="row">
+      <input type="text" id="toUser" placeholder="username" />
+      <button class="action" onclick="sendRequest()">Send</button>
+    </div>
+  </div>
 
-  <ul id="chat"></ul>
+  <div class="section">
+    <div class="section-label">Incoming Requests</div>
+    <ul id="requests"><li style="color:#555;font-size:12px;letter-spacing:1px">None</li></ul>
+  </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    let user = "";
+  <div class="section">
+    <div class="section-label">Chat</div>
+    <div class="row" style="margin-bottom:8px">
+      <input type="text" id="chatTo" placeholder="friend's username" />
+    </div>
+    <div id="chat-box"><span id="no-msg">no messages</span></div>
+    <div class="row">
+      <input type="text" id="msg" placeholder="message" onkeydown="if(event.key==='Enter')sendMessage()" />
+      <button class="action" onclick="sendMessage()">Send</button>
+    </div>
+    <div id="status"></div>
+  </div>
+</div>
 
-    function login() {
-      user = document.getElementById("username").value;
-      socket.emit("login", user);
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut as fbSignOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove,
+    collection,
+    query,
+    where,
+    onSnapshot,
+    addDoc,
+    serverTimestamp,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWBmQd-YuBmwwjSSyZz0qFVGoHA-t9QzI",
+    authDomain: "jacksonchat.firebaseapp.com",
+    projectId: "jacksonchat",
+    storageBucket: "jacksonchat.firebasestorage.app",
+    messagingSenderId: "908304460610",
+    appId: "1:908304460610:web:526ef6cbcc5b760305f6db",
+    measurementId: "G-BJNWLQ5D0R"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let chatUnsub = null;
+
+  window.signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      setStatus(e.message);
     }
+  };
 
-    function sendRequest() {
-      socket.emit("send_request", document.getElementById("toUser").value);
+  window.signOut = () => fbSignOut(auth);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      const uid = user.uid;
+      const username = user.displayName || user.email.split('@')[0];
+      await setDoc(doc(db, 'users', uid), {
+        uid,
+        username,
+        email: user.email,
+        photo: user.photoURL || ''
+      }, { merge: true });
+
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('user-name').textContent = username;
+      document.getElementById('user-avatar').src = user.photoURL || '';
+
+      listenRequests(uid);
+    } else {
+      currentUser = null;
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
     }
+  });
 
-    function sendMessage() {
-      socket.emit("message", {
-        to: document.getElementById("chatTo").value,
-        msg: document.getElementById("msg").value
-      });
-    }
+  window.sendRequest = async () => {
+    const toUsername = document.getElementById('toUser').value.trim();
+    if (!toUsername) return;
 
-    socket.on("update", (data) => {
-      const list = document.getElementById("requests");
-      list.innerHTML = "";
+    const q = query(collection(db, 'users'), where('username', '==', toUsername));
+    const snap = await import("https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js")
+      .then(m => m.getDocs(q));
 
-      data.requests.forEach(req => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          ${req}
-          <button onclick="accept('${req}')">Accept</button>
-        `;
+    if (snap.empty) { setStatus('User not found.'); return; }
+
+    const toUid = snap.docs[0].id;
+    if (toUid === currentUser.uid) { setStatus('Cannot add yourself.'); return; }
+
+    await updateDoc(doc(db, 'users', toUid), {
+      requests: arrayUnion(currentUser.displayName || currentUser.email.split('@')[0])
+    });
+    setStatus('Request sent.');
+    document.getElementById('toUser').value = '';
+  };
+
+  function listenRequests(uid) {
+    onSnapshot(doc(db, 'users', uid), (snap) => {
+      const data = snap.data();
+      const reqs = data?.requests || [];
+      const list = document.getElementById('requests');
+      list.innerHTML = '';
+      if (reqs.length === 0) {
+        list.innerHTML = '<li style="color:#555;font-size:12px;letter-spacing:1px">None</li>';
+        return;
+      }
+      reqs.forEach(req => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="req-name">${req}</span>`;
+        const btn = document.createElement('button');
+        btn.className = 'accept';
+        btn.textContent = 'Accept';
+        btn.onclick = () => acceptRequest(req, uid);
+        li.appendChild(btn);
         list.appendChild(li);
       });
     });
+  }
 
-    function accept(userFrom) {
-      socket.emit("accept_request", userFrom);
-    }
+  async function acceptRequest(fromUsername, myUid) {
+    await updateDoc(doc(db, 'users', myUid), {
+      requests: arrayRemove(fromUsername),
+      friends: arrayUnion(fromUsername)
+    });
+    setStatus(`Accepted ${fromUsername}.`);
+  }
 
-    socket.on("message", (data) => {
-      const chat = document.getElementById("chat");
-      const li = document.createElement("li");
-      li.textContent = `${data.from}: ${data.msg}`;
-      chat.appendChild(li);
+  window.sendMessage = async () => {
+    const to = document.getElementById('chatTo').value.trim();
+    const msg = document.getElementById('msg').value.trim();
+    if (!to || !msg) return;
+
+    const me = currentUser.displayName || currentUser.email.split('@')[0];
+    const roomId = [me, to].sort().join('__');
+
+    await addDoc(collection(db, 'chats', roomId, 'messages'), {
+      from: me,
+      msg,
+      ts: serverTimestamp()
     });
 
-    socket.on("refresh", () => {
-      socket.emit("login", user);
+    document.getElementById('msg').value = '';
+    loadChat(to);
+  };
+
+  document.getElementById('chatTo').addEventListener('change', () => {
+    loadChat(document.getElementById('chatTo').value.trim());
+  });
+  document.getElementById('chatTo').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loadChat(document.getElementById('chatTo').value.trim());
+  });
+
+  function loadChat(to) {
+    if (chatUnsub) chatUnsub();
+    if (!to) return;
+
+    const me = currentUser.displayName || currentUser.email.split('@')[0];
+    const roomId = [me, to].sort().join('__');
+    const q = query(
+      collection(db, 'chats', roomId, 'messages'),
+      orderBy('ts', 'asc')
+    );
+
+    chatUnsub = onSnapshot(q, (snap) => {
+      const box = document.getElementById('chat-box');
+      box.innerHTML = '';
+      if (snap.empty) {
+        box.innerHTML = '<span id="no-msg">no messages</span>';
+        return;
+      }
+      snap.docs.forEach(d => {
+        const data = d.data();
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        const isMe = data.from === me;
+        div.innerHTML = `<span class="from${isMe ? ' me' : ''}">${data.from}</span><span class="body">${escHtml(data.msg)}</span>`;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
     });
-  </script>
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function setStatus(msg) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    setTimeout(() => { el.textContent = ''; }, 3000);
+  }
+</script>
 </body>
 </html>
