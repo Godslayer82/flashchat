@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FlashChat</title>
+  <title>JacksonChat</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,38 +14,27 @@
       --border: #1e1e1e;
       --border2: #2a2a2a;
       --text: #ececec;
-      --muted: #4a4a4a;
+      --muted: #444;
       --muted2: #666;
+      --online: #3a3;
+      --owner-color: #c8a84b;
+      --admin-color: #7a8fc8;
+      --mod-color: #6ab08a;
+      --member-color: #555;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: var(--bg); color: var(--text);
+      font-family: 'Courier New', monospace; font-size: 13px;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
     }
 
-    /* ───── AUTH ───── */
+    /* ── AUTH ── */
     #auth-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      margin-top: 30vh;
-      width: 100%;
-      max-width: 300px;
-      padding: 0 16px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 20px; margin-top: 30vh; width: 100%; max-width: 300px; padding: 0 16px;
     }
-    #auth-screen h1 {
-      font-size: 16px;
-      letter-spacing: 8px;
-      text-transform: uppercase;
-      font-weight: normal;
-    }
+    #auth-screen h1 { font-size: 16px; letter-spacing: 8px; text-transform: uppercase; font-weight: normal; }
     #auth-screen p { color: var(--muted2); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
     .btn-google {
       display: flex; align-items: center; gap: 10px;
@@ -57,89 +46,91 @@
     }
     .btn-google:hover { border-color: #333; background: #161616; }
 
-    /* ───── LAYOUT ───── */
-    #app {
-      display: none;
-      width: 100%;
-      max-width: 900px;
-      height: 100vh;
-      flex-direction: row;
-    }
+    /* ── LAYOUT ── */
+    #app { display: none; width: 100%; max-width: 960px; height: 100vh; flex-direction: row; }
 
     /* ── Sidebar ── */
     #sidebar {
-      width: 220px;
-      flex-shrink: 0;
+      width: 230px; flex-shrink: 0;
       border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      display: flex; flex-direction: column; height: 100vh;
     }
-
     #sidebar-top {
-      padding: 18px 14px 14px;
-      border-bottom: 1px solid var(--border);
+      padding: 16px 14px 13px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
     }
-    #sidebar-top .logo {
-      font-size: 11px;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: var(--muted2);
-    }
+    #sidebar-top .logo { font-size: 11px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted2); }
+    #my-role-badge { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border: 1px solid; text-transform: uppercase; }
 
-    #nav-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
+    #nav-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .nav-tab {
-      flex: 1; padding: 9px 0;
-      text-align: center; font-size: 10px;
-      letter-spacing: 1px; text-transform: uppercase;
-      color: var(--muted); cursor: pointer;
-      border: none; background: none; font-family: inherit;
-      transition: color .15s;
-      border-bottom: 1px solid transparent;
-      margin-bottom: -1px;
+      flex: 1; padding: 8px 0; text-align: center; font-size: 9px;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+      cursor: pointer; border: none; background: none; font-family: inherit;
+      border-bottom: 1px solid transparent; margin-bottom: -1px; transition: color .15s;
     }
     .nav-tab:hover { color: var(--muted2); }
     .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
 
     .sidebar-panel { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
     .sidebar-panel.active { display: flex; }
+    .sidebar-panel::-webkit-scrollbar { width: 3px; }
+    .sidebar-panel::-webkit-scrollbar-thumb { background: var(--border2); }
 
-    /* Friends */
+    /* Friend items */
     .friend-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      transition: background .1s;
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 12px; cursor: pointer;
+      border-bottom: 1px solid var(--border); transition: background .1s;
     }
     .friend-item:hover { background: var(--surface2); }
     .friend-item.active-chat { background: var(--surface2); }
 
+    .avatar-wrap { position: relative; flex-shrink: 0; }
     .friend-avatar {
-      width: 28px; height: 28px; border-radius: 50%;
+      width: 30px; height: 30px; border-radius: 50%;
       background: var(--border2); border: 1px solid var(--border2);
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; color: var(--muted2); flex-shrink: 0;
+      font-size: 12px; color: var(--muted2); overflow: hidden;
     }
-    .friend-name { font-size: 12px; color: var(--text); }
+    .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .presence-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--muted); border: 2px solid var(--bg);
+    }
+    .presence-dot.online { background: var(--online); }
+
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name-row { display: flex; align-items: center; gap: 5px; }
+    .friend-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .role-pip {
+      font-size: 8px; letter-spacing: 1px; padding: 1px 4px;
+      border: 1px solid; text-transform: uppercase; flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .role-pip.owner  { color: var(--owner-color); border-color: var(--owner-color); }
+    .role-pip.admin  { color: var(--admin-color); border-color: var(--admin-color); }
+    .role-pip.moderator { color: var(--mod-color); border-color: var(--mod-color); }
+    .role-pip.member { display: none; }
+
+    .last-seen { font-size: 9px; color: var(--muted2); margin-top: 1px; }
+
     .list-empty { padding: 14px; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 
     /* Requests */
     .req-item {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
     }
     .req-name { font-size: 12px; }
     .req-actions { display: flex; gap: 5px; }
 
     /* Profile */
-    #tab-profile { padding: 16px 14px; gap: 16px; }
+    #tab-profile { padding: 14px 12px; gap: 14px; }
     .profile-top {
       display: flex; align-items: center; gap: 12px;
-      padding-bottom: 14px; border-bottom: 1px solid var(--border);
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
     }
     .profile-avatar-lg {
       width: 40px; height: 40px; border-radius: 50%;
@@ -150,6 +141,7 @@
     .profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
     .profile-uname { font-size: 13px; }
     .profile-email { font-size: 10px; color: var(--muted2); margin-top: 2px; word-break: break-all; }
+    .profile-role-line { font-size: 10px; margin-top: 3px; }
     .field-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
     input.field {
       flex: 1; background: var(--surface); border: 1px solid var(--border2);
@@ -159,23 +151,47 @@
     input.field:focus { border-color: #333; }
     input.field::placeholder { color: var(--muted); }
 
+    /* Admin portal */
+    #tab-admin { padding: 14px 12px; gap: 14px; }
+    .admin-title { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted2); padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .admin-user-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .admin-user-row:last-child { border-bottom: none; }
+    .admin-uname { flex: 1; font-size: 12px; }
+    .admin-role-label { font-size: 10px; color: var(--muted2); margin-right: 4px; }
+    select.role-select {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); font-family: inherit; font-size: 11px;
+      padding: 4px 6px; outline: none; cursor: pointer;
+    }
+    select.role-select:focus { border-color: #444; }
+    button.apply-btn {
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      padding: 4px 8px; cursor: pointer; font-family: inherit;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      transition: border-color .15s, color .15s;
+    }
+    button.apply-btn:hover { border-color: #444; color: var(--text); }
+
     /* Sidebar bottom */
-    #sidebar-bottom { border-top: 1px solid var(--border); padding: 10px 14px; margin-top: auto; }
+    #sidebar-bottom { border-top: 1px solid var(--border); padding: 10px 12px; }
 
     /* ── Main ── */
     #main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
     #chat-header {
-      padding: 0 18px;
-      border-bottom: 1px solid var(--border);
+      padding: 0 18px; border-bottom: 1px solid var(--border);
       font-size: 12px; color: var(--muted2);
-      height: 49px; display: flex; align-items: center; gap: 8px;
-      flex-shrink: 0;
+      height: 49px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
     }
+    #chat-header-presence { display: flex; align-items: center; gap: 5px; }
+    #chat-header-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    #chat-header-dot.online { background: var(--online); }
+    #chat-header-lastseen { font-size: 10px; color: var(--muted2); }
 
-    #add-friend-bar {
-      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
-    }
+    #add-friend-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     #add-friend-bar input {
       flex: 1; background: transparent; border: none;
       border-right: 1px solid var(--border); color: var(--text);
@@ -183,34 +199,33 @@
     }
     #add-friend-bar input::placeholder { color: var(--muted); }
 
-    #chat-area {
-      flex: 1; overflow-y: auto;
-      padding: 16px 20px; display: flex; flex-direction: column; gap: 6px;
-    }
+    #chat-area { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; }
     #chat-area::-webkit-scrollbar { width: 3px; }
     #chat-area::-webkit-scrollbar-thumb { background: var(--border2); }
 
-    .chat-placeholder {
-      margin: auto; font-size: 11px; color: var(--muted);
-      letter-spacing: 2px; text-align: center; line-height: 2.2;
-    }
+    .chat-placeholder { margin: auto; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-align: center; line-height: 2.2; }
 
     .msg-row { display: flex; flex-direction: column; }
     .msg-row.me { align-items: flex-end; }
     .msg-row.them { align-items: flex-start; }
-    .msg-sender { font-size: 10px; color: var(--muted2); margin-bottom: 3px; padding: 0 2px; }
-    .msg-bubble {
-      max-width: 70%; padding: 8px 12px;
-      font-size: 13px; line-height: 1.5; word-break: break-word;
+    .msg-sender-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; padding: 0 2px; }
+    .msg-sender { font-size: 10px; color: var(--muted2); }
+    .msg-role-pip {
+      font-size: 8px; padding: 1px 4px; border: 1px solid;
+      text-transform: uppercase; letter-spacing: 1px;
     }
+    .msg-role-pip.owner  { color: var(--owner-color); border-color: var(--owner-color); }
+    .msg-role-pip.admin  { color: var(--admin-color); border-color: var(--admin-color); }
+    .msg-role-pip.moderator { color: var(--mod-color); border-color: var(--mod-color); }
+    .msg-role-pip.member { display: none; }
+    .msg-bubble { max-width: 68%; padding: 8px 12px; font-size: 13px; line-height: 1.5; word-break: break-word; }
     .msg-row.me .msg-bubble { background: var(--surface2); border: 1px solid var(--border2); }
     .msg-row.them .msg-bubble { background: transparent; border: 1px solid var(--border); }
 
     #input-bar { border-top: 1px solid var(--border); display: flex; flex-shrink: 0; }
     #msg-input {
       flex: 1; background: transparent; border: none;
-      color: var(--text); padding: 14px 16px;
-      font-family: inherit; font-size: 13px; outline: none;
+      color: var(--text); padding: 14px 16px; font-family: inherit; font-size: 13px; outline: none;
     }
     #msg-input::placeholder { color: var(--muted); }
     #msg-input:disabled { opacity: .3; }
@@ -218,12 +233,11 @@
     /* Buttons */
     button.plain {
       background: none; border: 1px solid var(--border2); color: var(--muted2);
-      padding: 5px 10px; cursor: pointer; font-family: inherit;
+      padding: 5px 9px; cursor: pointer; font-family: inherit;
       font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
       transition: border-color .15s, color .15s;
     }
     button.plain:hover { border-color: #444; color: var(--text); }
-
     button.icon-btn {
       background: none; border: none; border-left: 1px solid var(--border);
       color: var(--muted2); padding: 0 18px; cursor: pointer;
@@ -232,7 +246,6 @@
     }
     button.icon-btn:hover { color: var(--text); background: var(--surface2); }
     button.icon-btn:disabled { opacity: .3; cursor: default; }
-
     button.add-btn {
       background: none; border: none; border-left: 1px solid var(--border);
       color: var(--muted2); padding: 0 16px; cursor: pointer;
@@ -240,7 +253,6 @@
       transition: color .15s;
     }
     button.add-btn:hover { color: var(--text); }
-
     button.signout-btn {
       width: 100%; background: none; border: 1px solid var(--border);
       color: var(--muted); padding: 8px; cursor: pointer;
@@ -254,25 +266,27 @@
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: var(--surface2); border: 1px solid var(--border2);
       color: var(--muted2); padding: 8px 18px; font-size: 11px;
-      letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s;
-      white-space: nowrap;
+      letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: nowrap;
     }
     #toast.show { opacity: 1; }
 
-    .sidebar-panel::-webkit-scrollbar { width: 3px; }
-    .sidebar-panel::-webkit-scrollbar-thumb { background: var(--border2); }
+    /* Role colour helpers */
+    .role-owner    { color: var(--owner-color); border-color: var(--owner-color); }
+    .role-admin    { color: var(--admin-color); border-color: var(--admin-color); }
+    .role-moderator{ color: var(--mod-color);   border-color: var(--mod-color); }
+    .role-member   { color: var(--member-color); border-color: var(--member-color); }
 
-    @media (max-width: 560px) {
-      #sidebar { width: 150px; }
-      .msg-bubble { max-width: 85%; }
-    }
+    #my-role-badge.role-owner    { color: var(--owner-color); border-color: var(--owner-color); }
+    #my-role-badge.role-admin    { color: var(--admin-color); border-color: var(--admin-color); }
+    #my-role-badge.role-moderator{ color: var(--mod-color);   border-color: var(--mod-color); }
+    #my-role-badge.role-member   { color: var(--member-color); border-color: var(--member-color); }
   </style>
 </head>
 <body>
 
 <!-- AUTH -->
 <div id="auth-screen">
-  <h1>FlashChat</h1>
+  <h1>JacksonChat</h1>
   <p>sign in to continue</p>
   <button class="btn-google" onclick="signInWithGoogle()">
     <svg width="16" height="16" viewBox="0 0 48 48">
@@ -288,42 +302,55 @@
 <!-- APP -->
 <div id="app">
   <div id="sidebar">
-    <div id="sidebar-top"><span class="logo">JChat</span></div>
+    <div id="sidebar-top">
+      <span class="logo">JChat</span>
+      <span id="my-role-badge"></span>
+    </div>
 
     <div id="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('friends')">Friends</button>
       <button class="nav-tab" id="req-tab" onclick="switchTab('requests')">Requests</button>
       <button class="nav-tab" onclick="switchTab('profile')">Profile</button>
+      <button class="nav-tab" id="admin-tab" onclick="switchTab('admin')" style="display:none">Admin</button>
     </div>
 
-    <!-- Friends panel -->
+    <!-- Friends -->
     <div id="tab-friends" class="sidebar-panel active">
       <div id="friends-list"><div class="list-empty">no friends yet</div></div>
     </div>
 
-    <!-- Requests panel -->
+    <!-- Requests -->
     <div id="tab-requests" class="sidebar-panel">
       <div id="requests-list"><div class="list-empty">no requests</div></div>
     </div>
 
-    <!-- Profile panel -->
+    <!-- Profile -->
     <div id="tab-profile" class="sidebar-panel">
-      <div class="profile-top">
-        <div class="profile-avatar-lg"><img id="profile-img" src="" alt="" /></div>
+      <div style="padding:14px 12px;display:flex;flex-direction:column;gap:14px;">
+        <div class="profile-top">
+          <div class="profile-avatar-lg"><img id="profile-img" src="" alt=""/></div>
+          <div>
+            <div class="profile-uname" id="profile-uname"></div>
+            <div class="profile-email" id="profile-email"></div>
+            <div class="profile-role-line" id="profile-role-line"></div>
+          </div>
+        </div>
         <div>
-          <div class="profile-uname" id="profile-uname"></div>
-          <div class="profile-email" id="profile-email"></div>
+          <div class="field-label">Change username</div>
+          <div style="display:flex;gap:6px">
+            <input class="field" id="new-username" placeholder="new username" />
+            <button class="plain" onclick="changeUsername()">Save</button>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px">letters, numbers, underscores — 2–20 chars</div>
         </div>
       </div>
-      <div>
-        <div class="field-label">Change username</div>
-        <div style="display:flex;gap:6px">
-          <input class="field" id="new-username" placeholder="new username" />
-          <button class="plain" onclick="changeUsername()">Save</button>
-        </div>
-        <div id="uname-hint" style="font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px">
-          letters, numbers, underscores — 2 to 20 chars
-        </div>
+    </div>
+
+    <!-- Admin Portal -->
+    <div id="tab-admin" class="sidebar-panel">
+      <div style="padding:14px 12px;display:flex;flex-direction:column;gap:10px;">
+        <div class="admin-title">Admin Portal</div>
+        <div id="admin-user-list"><div class="list-empty">loading users...</div></div>
       </div>
     </div>
 
@@ -332,14 +359,19 @@
     </div>
   </div>
 
+  <!-- Main chat -->
   <div id="main">
     <div id="chat-header">
       <span id="chat-header-text" style="color:var(--muted);letter-spacing:1px">select a friend to chat</span>
+      <div id="chat-header-presence" style="display:none">
+        <div id="chat-header-dot"></div>
+        <span id="chat-header-lastseen"></span>
+      </div>
     </div>
 
     <div id="add-friend-bar">
-      <input type="text" id="friend-input" placeholder="add friend by username..." onkeydown="if(event.key==='Enter')sendRequest()" />
-      <button class="add-btn" onclick="sendRequest()">+ Add</button>
+      <input type="text" id="friend-input" placeholder="add friend by username..." onkeydown="if(event.key==='Enter')sendFriendRequest()" />
+      <button class="add-btn" onclick="sendFriendRequest()">+ Add</button>
     </div>
 
     <div id="chat-area">
@@ -356,17 +388,16 @@
 <div id="toast"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
-  import {
-    getAuth, GoogleAuthProvider, signInWithPopup,
-    signOut as fbSignOut, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-  import {
-    getFirestore, doc, setDoc, getDoc, updateDoc,
-    arrayUnion, arrayRemove, collection, query, where,
-    onSnapshot, addDoc, serverTimestamp, orderBy, getDocs
-  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getAnalytics }     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove,
+           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy,
+           getDocs, getDocsFromServer }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  const OWNER_EMAIL = 'boydj23@greyhigh.school.nz';
 
   const firebaseConfig = {
     apiKey: "AIzaSyAWBmQd-YuBmwwjSSyZz0qFVGoHA-t9QzI",
@@ -378,25 +409,62 @@
     measurementId: "G-BJNWLQ5D0R"
   };
 
-  const app = initializeApp(firebaseConfig);
+  const app  = initializeApp(firebaseConfig);
   getAnalytics(app);
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  let currentUser  = null;
-  let myUsername   = '';
-  let activeFriend = null;
-  let chatUnsub    = null;
-  let userUnsub    = null;
+  let currentUser    = null;
+  let myUsername     = '';
+  let myRole         = 'member';
+  let activeFriend   = null;
+  let chatUnsub      = null;
+  let userUnsub      = null;
+  let presenceUnsub  = null;
+  let allUsersCache  = {};   // uid -> userData
 
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+  // ── Helpers ──
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   function toast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg; el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), 2500);
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+  function roleLabel(r) {
+    return { owner:'Owner', admin:'Admin', moderator:'Moderator', member:'Member' }[r] || 'Member';
+  }
+  function roleCss(r) {
+    return { owner:'role-owner', admin:'role-admin', moderator:'role-moderator', member:'role-member' }[r] || 'role-member';
+  }
+  function fmtLastSeen(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Date.now() - d.getTime();
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+    return d.toLocaleDateString();
+  }
+
+  // ── Presence ──
+  const PRESENCE_THRESHOLD = 3 * 60 * 1000; // 3 min = online
+  function isOnline(lastSeenTs) {
+    if (!lastSeenTs) return false;
+    const d = lastSeenTs.toDate ? lastSeenTs.toDate() : new Date(lastSeenTs);
+    return Date.now() - d.getTime() < PRESENCE_THRESHOLD;
+  }
+  function heartbeat() {
+    if (!currentUser) return;
+    updateDoc(doc(db, 'users', currentUser.uid), { lastSeen: serverTimestamp() }).catch(()=>{});
+  }
+  let _hb;
+  function startHeartbeat() {
+    heartbeat();
+    clearInterval(_hb);
+    _hb = setInterval(heartbeat, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) heartbeat();
+    });
   }
 
   // ── Auth ──
@@ -404,82 +472,141 @@
     try { await signInWithPopup(auth, new GoogleAuthProvider()); }
     catch(e) { toast(e.message); }
   };
-  window.doSignOut = () => fbSignOut(auth);
+  window.doSignOut = async () => {
+    await updateDoc(doc(db,'users',currentUser.uid), { lastSeen: serverTimestamp() });
+    fbSignOut(auth);
+  };
 
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, async user => {
     if (user) {
       currentUser = user;
-      const uid = user.uid;
-      const ref  = doc(db, 'users', uid);
-      const snap = await getDoc(ref);
+      const uid   = user.uid;
+      const ref   = doc(db, 'users', uid);
+      const snap  = await getDoc(ref);
+
+      // Determine role — owner is pinned by email
+      let role = 'member';
+      if (user.email === OWNER_EMAIL) role = 'owner';
+      else if (snap.exists()) role = snap.data().role || 'member';
 
       if (!snap.exists()) {
         myUsername = (user.displayName || user.email.split('@')[0]).replace(/\s+/g,'_');
         await setDoc(ref, {
-          uid, username: myUsername,
-          email: user.email, photo: user.photoURL||'',
-          friends: [], requests: []
+          uid, username: myUsername, email: user.email,
+          photo: user.photoURL||'', friends:[], requests:[], role, lastSeen: serverTimestamp()
         });
       } else {
         myUsername = snap.data().username;
+        // Always enforce owner role for owner email
+        if (user.email === OWNER_EMAIL && snap.data().role !== 'owner') {
+          await updateDoc(ref, { role: 'owner' });
+        }
       }
+      myRole = role;
 
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       refreshProfileUI();
+      showAdminTabIfEligible();
       startUserListener(uid);
+      startHeartbeat();
     } else {
-      currentUser = null; myUsername = ''; activeFriend = null;
-      if (chatUnsub) chatUnsub();
-      if (userUnsub) userUnsub();
-      document.getElementById('auth-screen').style.display = 'flex';
-      document.getElementById('app').style.display = 'none';
+      currentUser = null; myUsername=''; myRole='member'; activeFriend=null;
+      if (chatUnsub)    chatUnsub();
+      if (userUnsub)    userUnsub();
+      if (presenceUnsub) presenceUnsub();
+      clearInterval(_hb);
+      document.getElementById('auth-screen').style.display='flex';
+      document.getElementById('app').style.display='none';
     }
   });
 
   function refreshProfileUI() {
     document.getElementById('profile-uname').textContent = myUsername;
     document.getElementById('profile-email').textContent = currentUser.email;
+    const rl = document.getElementById('profile-role-line');
+    rl.textContent = roleLabel(myRole);
+    rl.className = 'profile-role-line ' + roleCss(myRole);
     const img = document.getElementById('profile-img');
-    if (currentUser.photoURL) { img.src = currentUser.photoURL; }
-    else { img.style.display = 'none'; }
+    if (currentUser.photoURL) img.src = currentUser.photoURL; else img.style.display='none';
+    const badge = document.getElementById('my-role-badge');
+    badge.textContent = roleLabel(myRole);
+    badge.className = 'role-' + myRole;
+    badge.style.border = '1px solid';
   }
 
-  // ── Live listener ──
+  function showAdminTabIfEligible() {
+    const tab = document.getElementById('admin-tab');
+    if (myRole === 'owner' || myRole === 'admin') {
+      tab.style.display = '';
+      loadAdminPanel();
+    }
+  }
+
+  // ── Live user listener ──
   function startUserListener(uid) {
     if (userUnsub) userUnsub();
-    userUnsub = onSnapshot(doc(db, 'users', uid), snap => {
+    userUnsub = onSnapshot(doc(db,'users',uid), snap => {
       const d = snap.data() || {};
+      // update role if changed externally
+      if (d.role && d.role !== myRole && currentUser.email !== OWNER_EMAIL) {
+        myRole = d.role;
+        refreshProfileUI();
+        showAdminTabIfEligible();
+      }
       renderFriends(d.friends || []);
       renderRequests(d.requests || []);
     });
   }
 
-  function renderFriends(friends) {
+  // ── Render friends ──
+  async function renderFriends(friends) {
     const list = document.getElementById('friends-list');
     if (!friends.length) {
       list.innerHTML = '<div class="list-empty">no friends yet</div>'; return;
     }
     list.innerHTML = '';
+
+    // Fetch presence info for all friends
+    const presenceMap = {};
+    await Promise.all(friends.map(async f => {
+      const q = query(collection(db,'users'), where('username','==',f));
+      const s = await getDocs(q);
+      if (!s.empty) {
+        const d = s.docs[0].data();
+        presenceMap[f] = { online: isOnline(d.lastSeen), lastSeen: d.lastSeen, role: d.role||'member' };
+        allUsersCache[s.docs[0].id] = d;
+      }
+    }));
+
     friends.forEach(f => {
+      const info = presenceMap[f] || { online: false, lastSeen: null, role: 'member' };
       const div = document.createElement('div');
       div.className = 'friend-item' + (activeFriend === f ? ' active-chat' : '');
       div.innerHTML = `
-        <div class="friend-avatar">${esc(f.charAt(0).toUpperCase())}</div>
-        <span class="friend-name">${esc(f)}</span>
+        <div class="avatar-wrap">
+          <div class="friend-avatar">${esc(f.charAt(0).toUpperCase())}</div>
+          <div class="presence-dot ${info.online ? 'online' : ''}"></div>
+        </div>
+        <div class="friend-info">
+          <div class="friend-name-row">
+            <span class="friend-name">${esc(f)}</span>
+            <span class="role-pip ${info.role}">${roleLabel(info.role)}</span>
+          </div>
+          <div class="last-seen">${info.online ? 'online' : (info.lastSeen ? fmtLastSeen(info.lastSeen) : '')}</div>
+        </div>
       `;
-      div.onclick = () => openChat(f);
+      div.onclick = () => openChat(f, info);
       list.appendChild(div);
     });
   }
 
+  // ── Render requests ──
   function renderRequests(reqs) {
     const tab = document.getElementById('req-tab');
     tab.textContent = reqs.length ? `Req (${reqs.length})` : 'Requests';
     const list = document.getElementById('requests-list');
-    if (!reqs.length) {
-      list.innerHTML = '<div class="list-empty">no requests</div>'; return;
-    }
+    if (!reqs.length) { list.innerHTML = '<div class="list-empty">no requests</div>'; return; }
     list.innerHTML = '';
     reqs.forEach(r => {
       const div = document.createElement('div');
@@ -487,25 +614,24 @@
       div.innerHTML = `
         <span class="req-name">${esc(r)}</span>
         <div class="req-actions">
-          <button class="plain" data-u="${esc(r)}" data-a="accept">Accept</button>
-          <button class="plain" data-u="${esc(r)}" data-a="decline">Decline</button>
+          <button class="plain">Accept</button>
+          <button class="plain">Decline</button>
         </div>
       `;
-      div.querySelectorAll('button').forEach(btn => {
-        btn.onclick = () => btn.dataset.a === 'accept' ? acceptReq(r) : declineReq(r);
-      });
+      div.querySelectorAll('button')[0].onclick = () => acceptReq(r);
+      div.querySelectorAll('button')[1].onclick = () => declineReq(r);
       list.appendChild(div);
     });
   }
 
   // ── Add friend ──
-  window.sendRequest = async () => {
+  window.sendFriendRequest = async () => {
     const toUsername = document.getElementById('friend-input').value.trim();
     if (!toUsername) return;
     if (toUsername === myUsername) { toast('Cannot add yourself.'); return; }
-    const snap = await getDocs(query(collection(db,'users'), where('username','==',toUsername)));
-    if (snap.empty) { toast('User not found.'); return; }
-    await updateDoc(doc(db,'users',snap.docs[0].id), { requests: arrayUnion(myUsername) });
+    const s = await getDocs(query(collection(db,'users'), where('username','==',toUsername)));
+    if (s.empty) { toast('User not found.'); return; }
+    await updateDoc(doc(db,'users',s.docs[0].id), { requests: arrayUnion(myUsername) });
     toast(`Request sent to ${toUsername}.`);
     document.getElementById('friend-input').value = '';
   };
@@ -514,11 +640,8 @@
     await updateDoc(doc(db,'users',currentUser.uid), {
       requests: arrayRemove(fromUsername), friends: arrayUnion(fromUsername)
     });
-    // mutual add
-    const snap = await getDocs(query(collection(db,'users'), where('username','==',fromUsername)));
-    if (!snap.empty) {
-      await updateDoc(doc(db,'users',snap.docs[0].id), { friends: arrayUnion(myUsername) });
-    }
+    const s = await getDocs(query(collection(db,'users'), where('username','==',fromUsername)));
+    if (!s.empty) await updateDoc(doc(db,'users',s.docs[0].id), { friends: arrayUnion(myUsername) });
     toast(`Added ${fromUsername}.`);
   }
   window.acceptReq = acceptReq;
@@ -530,50 +653,58 @@
   window.declineReq = declineReq;
 
   // ── Open chat ──
-  function openChat(friendName) {
+  function openChat(friendName, presenceInfo) {
     activeFriend = friendName;
 
-    // highlight sidebar
     document.querySelectorAll('.friend-item').forEach(el => {
-      el.classList.toggle('active-chat',
-        el.querySelector('.friend-name')?.textContent === friendName);
+      const fn = el.querySelector('.friend-name');
+      el.classList.toggle('active-chat', fn?.textContent === friendName);
     });
 
     document.getElementById('chat-header-text').innerHTML =
       `<span style="color:var(--muted)">chatting with</span>&nbsp;<span style="color:var(--text)">${esc(friendName)}</span>`;
 
-    const msgInput = document.getElementById('msg-input');
-    const sendBtn  = document.getElementById('send-btn');
-    msgInput.disabled = false;
-    sendBtn.disabled  = false;
-    msgInput.focus();
+    // Presence in header
+    if (presenceInfo) {
+      const dot = document.getElementById('chat-header-dot');
+      dot.className = presenceInfo.online ? 'online' : '';
+      document.getElementById('chat-header-lastseen').textContent =
+        presenceInfo.online ? 'online' : (presenceInfo.lastSeen ? 'last seen ' + fmtLastSeen(presenceInfo.lastSeen) : '');
+      document.getElementById('chat-header-presence').style.display = 'flex';
+    }
+
+    document.getElementById('msg-input').disabled = false;
+    document.getElementById('send-btn').disabled  = false;
+    document.getElementById('msg-input').focus();
 
     if (chatUnsub) chatUnsub();
     const roomId = [myUsername, friendName].sort().join('__');
     const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','asc'));
 
+    // Watch friend's role for badge in messages
+    let friendRole = presenceInfo?.role || 'member';
+
     chatUnsub = onSnapshot(q, snap => {
       const area = document.getElementById('chat-area');
       area.innerHTML = '';
-      if (snap.empty) {
-        area.innerHTML = '<div class="chat-placeholder">no messages yet</div>'; return;
-      }
+      if (snap.empty) { area.innerHTML='<div class="chat-placeholder">no messages yet</div>'; return; }
       snap.docs.forEach(d => {
         const data = d.data();
         const isMe = data.from === myUsername;
+        const role = isMe ? myRole : (data.role || friendRole);
         const row  = document.createElement('div');
         row.className = 'msg-row ' + (isMe ? 'me' : 'them');
         row.innerHTML = `
-          <div class="msg-sender">${esc(data.from)}</div>
+          <div class="msg-sender-row">
+            <span class="msg-sender">${esc(data.from)}</span>
+            <span class="msg-role-pip ${role}">${roleLabel(role)}</span>
+          </div>
           <div class="msg-bubble">${esc(data.msg)}</div>
         `;
         area.appendChild(row);
       });
       area.scrollTop = area.scrollHeight;
     });
-
-    // Auto-switch to friends tab on mobile
-    switchTab('friends');
   }
   window.openChat = openChat;
 
@@ -586,8 +717,9 @@
     input.value = '';
     const roomId = [myUsername, activeFriend].sort().join('__');
     await addDoc(collection(db,'chats',roomId,'messages'), {
-      from: myUsername, msg, ts: serverTimestamp()
+      from: myUsername, role: myRole, msg, ts: serverTimestamp()
     });
+    heartbeat();
   };
 
   // ── Change username ──
@@ -598,9 +730,8 @@
     if (!/^[a-zA-Z0-9_]{2,20}$/.test(newName)) {
       toast('2–20 chars: letters, numbers, underscores only.'); return;
     }
-    const snap = await getDocs(query(collection(db,'users'), where('username','==',newName)));
-    if (!snap.empty) { toast('Username already taken.'); return; }
-
+    const s = await getDocs(query(collection(db,'users'), where('username','==',newName)));
+    if (!s.empty) { toast('Username already taken.'); return; }
     await updateDoc(doc(db,'users',currentUser.uid), { username: newName });
     myUsername = newName;
     document.getElementById('profile-uname').textContent = newName;
@@ -608,12 +739,72 @@
     toast('Username updated.');
   };
 
-  // ── Tab switch ──
-  window.switchTab = (tab) => {
-    ['friends','requests','profile'].forEach((t, i) => {
-      document.querySelectorAll('.nav-tab')[i].classList.toggle('active', t === tab);
-      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  // ── Admin portal ──
+  async function loadAdminPanel() {
+    const snap = await getDocs(collection(db,'users'));
+    const list = document.getElementById('admin-user-list');
+    list.innerHTML = '';
+
+    const ROLE_OPTIONS = ['member','moderator','admin'];
+    // Owner can also assign owner — but we won't include it to prevent accidental reassignment
+    // Admin cannot assign admin or owner
+    const canAssignRoles = myRole === 'owner'
+      ? ['member','moderator','admin']
+      : ['member','moderator'];
+
+    snap.docs.forEach(d => {
+      const data = d.data();
+      const uid  = d.id;
+
+      // Can't change owner's role via portal
+      if (data.email === OWNER_EMAIL) {
+        const row = document.createElement('div');
+        row.className = 'admin-user-row';
+        row.innerHTML = `
+          <div class="admin-uname">${esc(data.username)}<br><span style="font-size:9px;color:var(--muted2)">${esc(data.email)}</span></div>
+          <span class="role-pip owner" style="font-size:9px;padding:2px 5px">Owner</span>
+        `;
+        list.appendChild(row); return;
+      }
+
+      // Admins can't change other admins (only owner can)
+      const currentRole = data.role || 'member';
+      const isEditable = myRole === 'owner' || currentRole !== 'admin';
+
+      const row = document.createElement('div');
+      row.className = 'admin-user-row';
+      row.innerHTML = `
+        <div class="admin-uname">${esc(data.username)}<br><span style="font-size:9px;color:var(--muted2)">${esc(data.email||'')}</span></div>
+        ${isEditable ? `
+          <select class="role-select" id="sel-${uid}">
+            ${canAssignRoles.map(r => `<option value="${r}" ${r===currentRole?'selected':''}>${roleLabel(r)}</option>`).join('')}
+          </select>
+          <button class="apply-btn" onclick="applyRole('${uid}', '${esc(data.username)}')">Apply</button>
+        ` : `<span class="role-pip admin" style="font-size:9px;padding:2px 5px">${roleLabel(currentRole)}</span>`}
+      `;
+      list.appendChild(row);
     });
+  }
+  window.loadAdminPanel = loadAdminPanel;
+
+  window.applyRole = async (uid, username) => {
+    const sel  = document.getElementById('sel-' + uid);
+    if (!sel) return;
+    const role = sel.value;
+    await updateDoc(doc(db,'users',uid), { role });
+    toast(`${username} is now ${roleLabel(role)}.`);
+  };
+
+  // ── Tab switch ──
+  window.switchTab = tab => {
+    const tabs = ['friends','requests','profile','admin'];
+    tabs.forEach((t, i) => {
+      const navBtn = document.querySelectorAll('.nav-tab')[i];
+      if (navBtn) navBtn.classList.toggle('active', t === tab);
+      const panel = document.getElementById('tab-' + t);
+      if (panel) panel.classList.toggle('active', t === tab);
+    });
+    if (tab === 'admin') loadAdminPanel();
   };
 </script>
 </body>
