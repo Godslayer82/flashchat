@@ -21,6 +21,7 @@
       --admin-color: #7a8fc8;
       --mod-color: #6ab08a;
       --member-color: #555;
+      --deny: #883333;
       --sidebar-w: clamp(160px, 22vw, 240px);
       --nav-fs: clamp(8px, 1.1vw, 10px);
       --base-fs: clamp(11px, 1.4vw, 13px);
@@ -52,22 +53,17 @@
     }
     .btn-google:hover { border-color: #333; background: #161616; }
 
-    #app {
-      display: none; width: 100%; height: 100vh;
-      flex-direction: row; overflow: hidden;
-    }
+    #app { display: none; width: 100%; height: 100vh; flex-direction: row; overflow: hidden; }
 
     #sidebar {
       width: var(--sidebar-w); flex-shrink: 0;
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column; height: 100vh; overflow: hidden;
     }
-
     #sidebar-top {
       padding: clamp(8px,1.2vh,14px) clamp(8px,1vw,14px);
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
     }
     #sidebar-top .logo { font-size: var(--nav-fs); letter-spacing: 4px; text-transform: uppercase; color: var(--muted2); }
     #my-role-badge { font-size: var(--nav-fs); letter-spacing: 1px; padding: 2px 5px; border: 1px solid; text-transform: uppercase; }
@@ -76,7 +72,7 @@
     .nav-tab {
       flex: 1; padding: clamp(5px,.8vh,9px) 2px;
       text-align: center; font-size: var(--nav-fs);
-      letter-spacing: 0; text-transform: uppercase; color: var(--muted);
+      text-transform: uppercase; color: var(--muted);
       cursor: pointer; border: none; background: none; font-family: inherit;
       border-bottom: 1px solid transparent; margin-bottom: -1px; transition: color .15s;
       white-space: nowrap; overflow: hidden;
@@ -196,7 +192,10 @@
 
     #tab-admin { overflow-y: auto; }
     .admin-inner { padding: clamp(10px,1.4vh,14px) clamp(8px,.9vw,12px); display: flex; flex-direction: column; gap: 10px; }
-    .admin-title { font-size: var(--nav-fs); letter-spacing: 3px; text-transform: uppercase; color: var(--muted2); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .admin-section-title {
+      font-size: var(--nav-fs); letter-spacing: 3px; text-transform: uppercase; color: var(--muted2);
+      padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+    }
     .admin-user-row { padding: clamp(6px,.9vh,9px) 0; border-bottom: 1px solid var(--border); }
     .admin-user-row:last-child { border-bottom: none; }
     .admin-row-top { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
@@ -221,6 +220,23 @@
       transition: border-color .15s, color .15s; white-space: nowrap;
     }
     button.small-btn:hover { border-color: #444; color: var(--text); }
+
+    .perm-table { width: 100%; border-collapse: collapse; font-size: var(--nav-fs); margin-top: 4px; }
+    .perm-table th {
+      text-align: left; padding: 4px 6px; color: var(--muted2);
+      border-bottom: 1px solid var(--border); font-weight: normal; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .perm-table th:not(:first-child) { text-align: center; }
+    .perm-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .perm-table td:not(:first-child) { text-align: center; }
+    .perm-table tr:last-child td { border-bottom: none; }
+    .perm-table .perm-name { color: var(--text); }
+    .perm-check { color: var(--online); font-size: 11px; }
+    .perm-cross { color: var(--muted); font-size: 11px; }
+    .perm-table .col-owner { color: var(--owner-color); }
+    .perm-table .col-admin { color: var(--admin-color); }
+    .perm-table .col-mod   { color: var(--mod-color); }
+    .perm-table .col-mem   { color: var(--member-color); }
 
     #sidebar-bottom { border-top: 1px solid var(--border); padding: clamp(6px,.9vh,10px) clamp(8px,.9vw,12px); flex-shrink: 0; }
 
@@ -255,7 +271,7 @@
     .msg-row { display: flex; flex-direction: column; flex-shrink: 0; }
     .msg-row.me { align-items: flex-end; }
     .msg-row.them { align-items: flex-start; }
-    .msg-sender-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; padding: 0 2px; }
+    .msg-sender-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; padding: 0 2px; flex-wrap: wrap; }
     .msg-sender { font-size: var(--small-fs); color: var(--muted2); }
     .msg-nick { font-size: clamp(8px,.9vw,10px); color: var(--muted); font-style: italic; }
     .msg-role-pip { font-size: clamp(7px,.8vw,9px); padding: 1px 3px; border: 1px solid; text-transform: uppercase; letter-spacing: 1px; }
@@ -263,21 +279,44 @@
     .msg-role-pip.admin     { color: var(--admin-color);   border-color: var(--admin-color); }
     .msg-role-pip.moderator { color: var(--mod-color);     border-color: var(--mod-color); }
     .msg-role-pip.member    { display: none; }
-    .msg-bubble {
-      max-width: clamp(60%, 70%, 80%); padding: clamp(6px,.9vh,9px) clamp(8px,1.1vw,13px);
-      font-size: var(--base-fs); line-height: 1.5; word-break: break-word;
+
+    .msg-badge {
+      font-size: clamp(7px,.8vw,9px); padding: 1px 3px; border: 1px solid var(--border2);
+      color: var(--muted2); text-transform: uppercase; letter-spacing: 1px;
     }
+    .msg-bubble { max-width: clamp(60%,72%,82%); padding: clamp(6px,.9vh,9px) clamp(8px,1.1vw,13px); font-size: var(--base-fs); line-height: 1.5; word-break: break-word; }
     .msg-row.me .msg-bubble { background: var(--surface2); border: 1px solid var(--border2); }
     .msg-row.them .msg-bubble { background: transparent; border: 1px solid var(--border); }
 
-    #input-bar { border-top: 1px solid var(--border); display: flex; flex-shrink: 0; }
-    #msg-input {
+    .msg-media { max-width: clamp(120px,18vw,220px); max-height: clamp(100px,16vh,180px); display: block; border: 1px solid var(--border2); margin-top: 4px; cursor: pointer; }
+
+    #input-bar { border-top: 1px solid var(--border); display: flex; flex-shrink: 0; align-items: stretch; }
+    #input-bar input[type=text] {
       flex: 1; background: transparent; border: none;
       color: var(--text); padding: clamp(10px,1.5vh,15px) clamp(10px,1.4vw,16px);
       font-family: inherit; font-size: var(--base-fs); outline: none;
     }
-    #msg-input::placeholder { color: var(--muted); }
-    #msg-input:disabled { opacity: .3; }
+    #input-bar input[type=text]::placeholder { color: var(--muted); }
+    #input-bar input[type=text]:disabled { opacity: .3; }
+
+    .input-action {
+      background: none; border: none; border-left: 1px solid var(--border);
+      color: var(--muted2); padding: 0 clamp(8px,1.1vw,14px); cursor: pointer;
+      font-family: inherit; font-size: var(--nav-fs); text-transform: uppercase;
+      transition: color .15s, background .15s; flex-shrink: 0;
+    }
+    .input-action:hover { color: var(--text); background: var(--surface2); }
+    .input-action:disabled { opacity: .25; cursor: default; }
+    .input-action.denied { color: var(--deny); cursor: not-allowed; }
+
+    #media-input { display: none; }
+
+    #slowmode-bar {
+      display: none; padding: 4px clamp(10px,1.4vw,16px);
+      font-size: var(--nav-fs); color: var(--muted2); background: var(--surface);
+      border-bottom: 1px solid var(--border); letter-spacing: 1px; flex-shrink: 0;
+    }
+    #slowmode-bar.active { display: block; }
 
     button.plain {
       background: none; border: 1px solid var(--border2); color: var(--muted2);
@@ -286,14 +325,6 @@
       transition: border-color .15s, color .15s;
     }
     button.plain:hover { border-color: #444; color: var(--text); }
-    button.icon-btn {
-      background: none; border: none; border-left: 1px solid var(--border);
-      color: var(--muted2); padding: 0 clamp(10px,1.4vw,18px); cursor: pointer;
-      font-family: inherit; font-size: var(--nav-fs); letter-spacing: 2px; text-transform: uppercase;
-      transition: color .15s, background .15s; flex-shrink: 0;
-    }
-    button.icon-btn:hover { color: var(--text); background: var(--surface2); }
-    button.icon-btn:disabled { opacity: .3; cursor: default; }
     button.add-btn {
       background: none; border: none; border-left: 1px solid var(--border);
       color: var(--muted2); padding: 0 clamp(10px,1.4vw,16px); cursor: pointer;
@@ -313,23 +344,24 @@
       position: fixed; bottom: clamp(12px,2vh,20px); left: 50%; transform: translateX(-50%);
       background: var(--surface2); border: 1px solid var(--border2);
       color: var(--muted2); padding: 7px 16px; font-size: var(--small-fs);
-      letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: nowrap;
-      z-index: 999;
+      letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: nowrap; z-index: 999;
     }
     #toast.show { opacity: 1; }
+
+    #perm-denied-msg {
+      display: none; padding: 6px clamp(10px,1.4vw,16px);
+      font-size: var(--nav-fs); color: var(--deny); border-top: 1px solid var(--border);
+      background: var(--surface); flex-shrink: 0; letter-spacing: 1px;
+    }
+    #perm-denied-msg.show { display: block; }
 
     #my-role-badge.role-owner     { color: var(--owner-color);  border-color: var(--owner-color); }
     #my-role-badge.role-admin     { color: var(--admin-color);   border-color: var(--admin-color); }
     #my-role-badge.role-moderator { color: var(--mod-color);     border-color: var(--mod-color); }
     #my-role-badge.role-member    { color: var(--member-color);  border-color: var(--member-color); }
 
-    @media (max-width: 520px) {
-      :root { --sidebar-w: 52vw; }
-      .msg-bubble { max-width: 82%; }
-    }
-    @media (max-width: 360px) {
-      :root { --sidebar-w: 46vw; }
-    }
+    @media (max-width: 520px) { :root { --sidebar-w: 52vw; } .msg-bubble { max-width: 82%; } }
+    @media (max-width: 360px) { :root { --sidebar-w: 46vw; } }
   </style>
 </head>
 <body>
@@ -405,12 +437,29 @@
             <button class="plain" onclick="saveMyNickname()">Save</button>
           </div>
         </div>
+        <div>
+          <div class="field-label">Your Permissions</div>
+          <div id="my-perms-list" style="display:flex;flex-direction:column;gap:3px"></div>
+        </div>
       </div>
     </div>
 
     <div id="tab-admin" class="sidebar-panel">
       <div class="admin-inner">
-        <div class="admin-title">Admin Portal</div>
+        <div class="admin-section-title">Permissions by Role</div>
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th class="col-owner">Owner</th>
+              <th class="col-admin">Admin</th>
+              <th class="col-mod">Mod</th>
+              <th class="col-mem">Member</th>
+            </tr>
+          </thead>
+          <tbody id="perm-table-body"></tbody>
+        </table>
+        <div class="admin-section-title" style="margin-top:12px">User Management</div>
         <div id="admin-user-list"><div class="list-empty">loading...</div></div>
       </div>
     </div>
@@ -428,19 +477,20 @@
         <span id="chat-header-lastseen"></span>
       </div>
     </div>
-
+    <div id="slowmode-bar"></div>
     <div id="add-friend-bar">
       <input type="text" id="friend-input" placeholder="add friend by username..." onkeydown="if(event.key==='Enter')sendFriendRequest()" />
       <button class="add-btn" onclick="sendFriendRequest()">+ Add</button>
     </div>
-
     <div id="chat-area">
       <div class="chat-placeholder">select a friend<br/>to start chatting</div>
     </div>
-
+    <div id="perm-denied-msg"></div>
     <div id="input-bar">
       <input type="text" id="msg-input" placeholder="message..." disabled onkeydown="if(event.key==='Enter')sendMessage()" />
-      <button class="icon-btn" id="send-btn" onclick="sendMessage()" disabled>Send</button>
+      <input type="file" id="media-input" accept="image/*,video/*" onchange="handleMediaUpload(event)" />
+      <button class="input-action" id="btn-media" title="Send media" onclick="triggerMedia()" disabled>📎</button>
+      <button class="input-action" id="send-btn" onclick="sendMessage()" disabled>Send</button>
     </div>
   </div>
 </div>
@@ -474,6 +524,26 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
+  const ROLE_ORDER = { owner: 4, admin: 3, moderator: 2, member: 1 };
+
+  const PERMISSIONS = [
+    { key: 'sendMedia',       label: 'Send media',        roles: ['owner','admin','moderator'] },
+    { key: 'postLinks',       label: 'Post links',        roles: ['owner','admin','moderator'] },
+    { key: 'voiceVideo',      label: 'Voice / video',     roles: ['owner','admin'] },
+    { key: 'createRooms',     label: 'Create rooms',      roles: ['owner','admin','moderator'] },
+    { key: 'slowmodeBypass',  label: 'Slowmode bypass',   roles: ['owner','admin','moderator'] },
+    { key: 'staffRoom',       label: 'Staff room access', roles: ['owner','admin','moderator'] },
+    { key: 'vipRoom',         label: 'VIP room access',   roles: ['owner','admin'] },
+    { key: 'sendMessages',    label: 'Send messages',     roles: ['owner','admin','moderator','member'] },
+  ];
+
+  const SLOWMODE_DELAY = 10000;
+
+  function hasPerm(role, key) {
+    const p = PERMISSIONS.find(p => p.key === key);
+    return p ? p.roles.includes(role) : false;
+  }
+
   let currentUser   = null;
   let myUsername    = '';
   let myRole        = 'member';
@@ -482,6 +552,7 @@
   let chatUnsub     = null;
   let userUnsub     = null;
   let discoverCache = [];
+  let lastSentTs    = 0;
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -591,6 +662,47 @@
     const badge = document.getElementById('my-role-badge');
     badge.textContent = roleLabel(myRole);
     badge.className = roleCss(myRole);
+    renderMyPerms();
+    refreshInputBarPerms();
+  }
+
+  function renderMyPerms() {
+    const container = document.getElementById('my-perms-list');
+    container.innerHTML = '';
+    PERMISSIONS.forEach(p => {
+      const has = hasPerm(myRole, p.key);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:var(--nav-fs);padding:2px 0';
+      row.innerHTML = `
+        <span style="color:${has ? 'var(--online)' : 'var(--muted)'}">${has ? '✓' : '✗'}</span>
+        <span style="color:${has ? 'var(--text)' : 'var(--muted)'}">${esc(p.label)}</span>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function refreshInputBarPerms() {
+    const canMsg   = hasPerm(myRole, 'sendMessages');
+    const canMedia = hasPerm(myRole, 'sendMedia');
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn  = document.getElementById('send-btn');
+    const mediaBtn = document.getElementById('btn-media');
+
+    if (activeFriend) {
+      msgInput.disabled = !canMsg;
+      sendBtn.disabled  = !canMsg;
+      mediaBtn.disabled = !canMedia;
+      mediaBtn.classList.toggle('denied', !canMedia);
+      msgInput.placeholder = canMsg ? 'message...' : 'you cannot send messages';
+    }
+
+    const smBar = document.getElementById('slowmode-bar');
+    if (!hasPerm(myRole, 'slowmodeBypass') && activeFriend) {
+      smBar.textContent = '⏱ slowmode — 10s between messages';
+      smBar.classList.add('active');
+    } else {
+      smBar.classList.remove('active');
+    }
   }
 
   function showAdminTabIfEligible() {
@@ -729,7 +841,7 @@
       div.className = 'discover-item';
       div.innerHTML = `
         <div class="avatar-wrap">
-          <div class="friend-avatar" style="width:clamp(22px,2.6vw,28px);height:clamp(22px,2.6vw,28px)">${esc((u.username||'?').charAt(0).toUpperCase())}</div>
+          <div class="friend-avatar">${esc((u.username||'?').charAt(0).toUpperCase())}</div>
           <div class="presence-dot ${isOnline(u.lastSeen)?'online':''}"></div>
         </div>
         <div class="discover-info">
@@ -773,9 +885,7 @@
         presenceInfo.online ? 'online' : (presenceInfo.lastSeen ? 'last seen '+fmtLastSeen(presenceInfo.lastSeen) : '');
       document.getElementById('chat-header-presence').classList.add('show');
     }
-    document.getElementById('msg-input').disabled = false;
-    document.getElementById('send-btn').disabled  = false;
-    document.getElementById('msg-input').focus();
+    refreshInputBarPerms();
 
     if (chatUnsub) chatUnsub();
     const roomId = [myUsername, friendName].sort().join('__');
@@ -793,13 +903,26 @@
         const nick = isMe ? myNickname : (presenceInfo?.nickname||'');
         const row  = document.createElement('div');
         row.className = 'msg-row ' + (isMe ? 'me' : 'them');
+
+        let contentHTML = '';
+        if (data.type === 'image') {
+          contentHTML = `<img class="msg-media" src="${esc(data.url)}" onclick="window.open('${esc(data.url)}','_blank')" />`;
+        } else if (data.type === 'link') {
+          const safeUrl = esc(data.msg);
+          contentHTML = `<a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--admin-color);word-break:break-all">${safeUrl}</a>`;
+        } else {
+          contentHTML = esc(data.msg);
+        }
+
         row.innerHTML = `
           <div class="msg-sender-row">
             <span class="msg-sender">${esc(data.from)}</span>
             ${nick ? `<span class="msg-nick">"${esc(nick)}"</span>` : ''}
             <span class="msg-role-pip ${role}">${roleLabel(role)}</span>
+            ${data.type === 'image' ? `<span class="msg-badge">media</span>` : ''}
+            ${data.type === 'link'  ? `<span class="msg-badge">link</span>` : ''}
           </div>
-          <div class="msg-bubble">${esc(data.msg)}</div>
+          <div class="msg-bubble">${contentHTML}</div>
         `;
         area.appendChild(row);
       });
@@ -808,17 +931,77 @@
   }
   window.openChat = openChat;
 
+  function checkSlowmode() {
+    if (hasPerm(myRole, 'slowmodeBypass')) return true;
+    const now = Date.now();
+    if (now - lastSentTs < SLOWMODE_DELAY) {
+      const rem = Math.ceil((SLOWMODE_DELAY - (now - lastSentTs)) / 1000);
+      showPermDenied(`slowmode — wait ${rem}s`);
+      return false;
+    }
+    return true;
+  }
+
+  function showPermDenied(msg) {
+    const el = document.getElementById('perm-denied-msg');
+    el.textContent = '⚠ ' + msg;
+    el.classList.add('show');
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
   window.sendMessage = async () => {
     if (!activeFriend) return;
+    if (!hasPerm(myRole, 'sendMessages')) { showPermDenied('You do not have permission to send messages.'); return; }
+    if (!checkSlowmode()) return;
+
     const input = document.getElementById('msg-input');
-    const msg   = input.value.trim();
-    if (!msg) return;
+    const raw   = input.value.trim();
+    if (!raw) return;
+
+    const urlPattern = /https?:\/\/[^\s]+/i;
+    if (urlPattern.test(raw) && !hasPerm(myRole, 'postLinks')) {
+      showPermDenied('You do not have permission to post links.'); return;
+    }
+
     input.value = '';
+    lastSentTs = Date.now();
     const roomId = [myUsername, activeFriend].sort().join('__');
+    const isLink = urlPattern.test(raw);
     await addDoc(collection(db,'chats',roomId,'messages'), {
-      from: myUsername, role: myRole, msg, ts: serverTimestamp()
+      from: myUsername, role: myRole,
+      msg: raw, type: isLink ? 'link' : 'text',
+      ts: serverTimestamp()
     });
     heartbeat();
+  };
+
+  window.triggerMedia = () => {
+    if (!hasPerm(myRole, 'sendMedia')) { showPermDenied('You do not have permission to send media.'); return; }
+    document.getElementById('media-input').click();
+  };
+
+  window.handleMediaUpload = async (e) => {
+    if (!activeFriend) return;
+    if (!hasPerm(myRole, 'sendMedia')) { showPermDenied('You do not have permission to send media.'); return; }
+    if (!checkSlowmode()) return;
+
+    const file = e.target.files[0];
+    if (!file) return;
+    e.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      lastSentTs = Date.now();
+      const roomId = [myUsername, activeFriend].sort().join('__');
+      await addDoc(collection(db,'chats',roomId,'messages'), {
+        from: myUsername, role: myRole,
+        url: ev.target.result, type: 'image',
+        msg: '', ts: serverTimestamp()
+      });
+      heartbeat();
+    };
+    reader.readAsDataURL(file);
+    toast('Sending image...');
   };
 
   window.changeUsername = async () => {
@@ -843,7 +1026,23 @@
     toast(nick ? `Nickname set to "${nick}".` : 'Nickname cleared.');
   };
 
+  function buildPermTable() {
+    const tbody = document.getElementById('perm-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const roles = ['owner','admin','moderator','member'];
+    PERMISSIONS.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="perm-name">${esc(p.label)}</td>
+        ${roles.map(r => `<td>${p.roles.includes(r) ? '<span class="perm-check">✓</span>' : '<span class="perm-cross">✗</span>'}</td>`).join('')}
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
   async function loadAdminPanel() {
+    buildPermTable();
     const snap = await getDocs(collection(db,'users'));
     const list = document.getElementById('admin-user-list');
     list.innerHTML = '';
@@ -913,7 +1112,7 @@
       const panel = document.getElementById('tab-'+t);
       if (panel) panel.classList.toggle('active', t === tab);
     });
-    if (tab === 'admin')   loadAdminPanel();
+    if (tab === 'admin')    loadAdminPanel();
     if (tab === 'discover') window.loadDiscover();
   };
 </script>
