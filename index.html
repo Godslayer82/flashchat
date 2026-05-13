@@ -62,12 +62,13 @@
     #sidebar-top .logo { font-size: 11px; letter-spacing: 5px; text-transform: uppercase; color: var(--muted2); }
     #my-role-badge { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border: 1px solid; text-transform: uppercase; }
 
-    #nav-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    #nav-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
     .nav-tab {
-      flex: 1; padding: 8px 0; text-align: center; font-size: 9px;
+      flex: 1; padding: 8px 4px; text-align: center; font-size: 9px;
       letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
       cursor: pointer; border: none; background: none; font-family: inherit;
       border-bottom: 1px solid transparent; margin-bottom: -1px; transition: color .15s;
+      min-width: 0; white-space: nowrap;
     }
     .nav-tab:hover { color: var(--muted2); }
     .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
@@ -93,7 +94,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; color: var(--muted2); overflow: hidden;
     }
-    .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .presence-dot {
       position: absolute; bottom: 0; right: 0;
       width: 9px; height: 9px; border-radius: 50%;
@@ -104,18 +104,16 @@
     .friend-info { flex: 1; min-width: 0; }
     .friend-name-row { display: flex; align-items: center; gap: 5px; }
     .friend-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nickname-tag { font-size: 9px; color: var(--muted2); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .role-pip {
       font-size: 8px; letter-spacing: 1px; padding: 1px 4px;
-      border: 1px solid; text-transform: uppercase; flex-shrink: 0;
-      white-space: nowrap;
+      border: 1px solid; text-transform: uppercase; flex-shrink: 0; white-space: nowrap;
     }
-    .role-pip.owner  { color: var(--owner-color); border-color: var(--owner-color); }
-    .role-pip.admin  { color: var(--admin-color); border-color: var(--admin-color); }
-    .role-pip.moderator { color: var(--mod-color); border-color: var(--mod-color); }
-    .role-pip.member { display: none; }
-
+    .role-pip.owner     { color: var(--owner-color);  border-color: var(--owner-color); }
+    .role-pip.admin     { color: var(--admin-color);   border-color: var(--admin-color); }
+    .role-pip.moderator { color: var(--mod-color);     border-color: var(--mod-color); }
+    .role-pip.member    { display: none; }
     .last-seen { font-size: 9px; color: var(--muted2); margin-top: 1px; }
-
     .list-empty { padding: 14px; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 
     /* Requests */
@@ -125,6 +123,42 @@
     }
     .req-name { font-size: 12px; }
     .req-actions { display: flex; gap: 5px; }
+
+    /* Discover / Quick Add */
+    #tab-discover { gap: 0; }
+    .discover-header {
+      padding: 12px; border-bottom: 1px solid var(--border);
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .discover-refresh {
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      padding: 3px 8px; cursor: pointer; font-family: inherit;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      transition: color .15s, border-color .15s;
+    }
+    .discover-refresh:hover { color: var(--text); border-color: #444; }
+    .discover-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    .discover-info { flex: 1; min-width: 0; }
+    .discover-name { font-size: 12px; }
+    .discover-email { font-size: 9px; color: var(--muted2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quick-add-btn {
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      padding: 4px 9px; cursor: pointer; font-family: inherit;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      transition: color .15s, border-color .15s; flex-shrink: 0;
+    }
+    .quick-add-btn:hover { color: var(--text); border-color: #444; }
+    .quick-add-btn.sent { color: var(--muted); border-color: var(--border); cursor: default; }
+    .discover-search {
+      width: 100%; background: transparent; border: none;
+      border-bottom: 1px solid var(--border); color: var(--text);
+      padding: 9px 12px; font-family: inherit; font-size: 12px; outline: none;
+    }
+    .discover-search::placeholder { color: var(--muted); }
 
     /* Profile */
     #tab-profile { padding: 14px 12px; gap: 14px; }
@@ -152,28 +186,35 @@
     input.field::placeholder { color: var(--muted); }
 
     /* Admin portal */
-    #tab-admin { padding: 14px 12px; gap: 14px; }
-    .admin-title { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted2); padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    #tab-admin { padding: 0; gap: 0; }
+    .admin-section { padding: 12px; border-bottom: 1px solid var(--border); }
+    .admin-title { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted2); margin-bottom: 10px; }
     .admin-user-row {
-      display: flex; align-items: center; gap: 8px;
       padding: 8px 0; border-bottom: 1px solid var(--border);
     }
     .admin-user-row:last-child { border-bottom: none; }
-    .admin-uname { flex: 1; font-size: 12px; }
-    .admin-role-label { font-size: 10px; color: var(--muted2); margin-right: 4px; }
+    .admin-row-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .admin-uname { flex: 1; font-size: 11px; }
+    .admin-email { font-size: 9px; color: var(--muted2); }
+    .admin-controls { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     select.role-select {
       background: var(--surface); border: 1px solid var(--border2);
-      color: var(--text); font-family: inherit; font-size: 11px;
-      padding: 4px 6px; outline: none; cursor: pointer;
+      color: var(--text); font-family: inherit; font-size: 10px;
+      padding: 3px 5px; outline: none; cursor: pointer;
     }
-    select.role-select:focus { border-color: #444; }
-    button.apply-btn {
+    input.nick-input {
+      background: var(--surface); border: 1px solid var(--border2);
+      color: var(--text); font-family: inherit; font-size: 10px;
+      padding: 3px 6px; outline: none; width: 80px;
+    }
+    input.nick-input::placeholder { color: var(--muted); }
+    button.small-btn {
       background: none; border: 1px solid var(--border2); color: var(--muted2);
-      padding: 4px 8px; cursor: pointer; font-family: inherit;
+      padding: 3px 7px; cursor: pointer; font-family: inherit;
       font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
-      transition: border-color .15s, color .15s;
+      transition: border-color .15s, color .15s; white-space: nowrap;
     }
-    button.apply-btn:hover { border-color: #444; color: var(--text); }
+    button.small-btn:hover { border-color: #444; color: var(--text); }
 
     /* Sidebar bottom */
     #sidebar-bottom { border-top: 1px solid var(--border); padding: 10px 12px; }
@@ -210,14 +251,14 @@
     .msg-row.them { align-items: flex-start; }
     .msg-sender-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; padding: 0 2px; }
     .msg-sender { font-size: 10px; color: var(--muted2); }
+    .msg-nick { font-size: 9px; color: var(--muted); font-style: italic; }
     .msg-role-pip {
-      font-size: 8px; padding: 1px 4px; border: 1px solid;
-      text-transform: uppercase; letter-spacing: 1px;
+      font-size: 8px; padding: 1px 4px; border: 1px solid; text-transform: uppercase; letter-spacing: 1px;
     }
-    .msg-role-pip.owner  { color: var(--owner-color); border-color: var(--owner-color); }
-    .msg-role-pip.admin  { color: var(--admin-color); border-color: var(--admin-color); }
-    .msg-role-pip.moderator { color: var(--mod-color); border-color: var(--mod-color); }
-    .msg-role-pip.member { display: none; }
+    .msg-role-pip.owner     { color: var(--owner-color);  border-color: var(--owner-color); }
+    .msg-role-pip.admin     { color: var(--admin-color);   border-color: var(--admin-color); }
+    .msg-role-pip.moderator { color: var(--mod-color);     border-color: var(--mod-color); }
+    .msg-role-pip.member    { display: none; }
     .msg-bubble { max-width: 68%; padding: 8px 12px; font-size: 13px; line-height: 1.5; word-break: break-word; }
     .msg-row.me .msg-bubble { background: var(--surface2); border: 1px solid var(--border2); }
     .msg-row.them .msg-bubble { background: transparent; border: 1px solid var(--border); }
@@ -230,7 +271,6 @@
     #msg-input::placeholder { color: var(--muted); }
     #msg-input:disabled { opacity: .3; }
 
-    /* Buttons */
     button.plain {
       background: none; border: 1px solid var(--border2); color: var(--muted2);
       padding: 5px 9px; cursor: pointer; font-family: inherit;
@@ -261,7 +301,6 @@
     }
     button.signout-btn:hover { border-color: #333; color: var(--text); }
 
-    /* Toast */
     #toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: var(--surface2); border: 1px solid var(--border2);
@@ -269,12 +308,6 @@
       letter-spacing: 1px; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: nowrap;
     }
     #toast.show { opacity: 1; }
-
-    /* Role colour helpers */
-    .role-owner    { color: var(--owner-color); border-color: var(--owner-color); }
-    .role-admin    { color: var(--admin-color); border-color: var(--admin-color); }
-    .role-moderator{ color: var(--mod-color);   border-color: var(--mod-color); }
-    .role-member   { color: var(--member-color); border-color: var(--member-color); }
 
     #my-role-badge.role-owner    { color: var(--owner-color); border-color: var(--owner-color); }
     #my-role-badge.role-admin    { color: var(--admin-color); border-color: var(--admin-color); }
@@ -309,7 +342,8 @@
 
     <div id="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('friends')">Friends</button>
-      <button class="nav-tab" id="req-tab" onclick="switchTab('requests')">Requests</button>
+      <button class="nav-tab" id="req-tab" onclick="switchTab('requests')">Req</button>
+      <button class="nav-tab" onclick="switchTab('discover')">Discover</button>
       <button class="nav-tab" onclick="switchTab('profile')">Profile</button>
       <button class="nav-tab" id="admin-tab" onclick="switchTab('admin')" style="display:none">Admin</button>
     </div>
@@ -324,6 +358,16 @@
       <div id="requests-list"><div class="list-empty">no requests</div></div>
     </div>
 
+    <!-- Discover / Quick Add -->
+    <div id="tab-discover" class="sidebar-panel">
+      <input class="discover-search" id="discover-search" placeholder="search users..." oninput="filterDiscover()" />
+      <div class="discover-header">
+        <span>People you may know</span>
+        <button class="discover-refresh" onclick="loadDiscover()">↻ Refresh</button>
+      </div>
+      <div id="discover-list"><div class="list-empty">loading...</div></div>
+    </div>
+
     <!-- Profile -->
     <div id="tab-profile" class="sidebar-panel">
       <div style="padding:14px 12px;display:flex;flex-direction:column;gap:14px;">
@@ -331,6 +375,7 @@
           <div class="profile-avatar-lg"><img id="profile-img" src="" alt=""/></div>
           <div>
             <div class="profile-uname" id="profile-uname"></div>
+            <div id="profile-nick-display" style="font-size:10px;color:var(--muted2);font-style:italic;margin-top:1px"></div>
             <div class="profile-email" id="profile-email"></div>
             <div class="profile-role-line" id="profile-role-line"></div>
           </div>
@@ -341,16 +386,24 @@
             <input class="field" id="new-username" placeholder="new username" />
             <button class="plain" onclick="changeUsername()">Save</button>
           </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:1px">letters, numbers, underscores — 2–20 chars</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:1px">letters, numbers, underscores — 2–20 chars</div>
+        </div>
+        <div>
+          <div class="field-label">Set nickname</div>
+          <div style="display:flex;gap:6px">
+            <input class="field" id="my-nickname" placeholder="display nickname" />
+            <button class="plain" onclick="saveMyNickname()">Save</button>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:1px">shown alongside your username</div>
         </div>
       </div>
     </div>
 
     <!-- Admin Portal -->
     <div id="tab-admin" class="sidebar-panel">
-      <div style="padding:14px 12px;display:flex;flex-direction:column;gap:10px;">
-        <div class="admin-title">Admin Portal</div>
-        <div id="admin-user-list"><div class="list-empty">loading users...</div></div>
+      <div class="admin-section">
+        <div class="admin-title">Admin Portal — User Management</div>
+        <div id="admin-user-list"><div class="list-empty">loading...</div></div>
       </div>
     </div>
 
@@ -363,7 +416,7 @@
   <div id="main">
     <div id="chat-header">
       <span id="chat-header-text" style="color:var(--muted);letter-spacing:1px">select a friend to chat</span>
-      <div id="chat-header-presence" style="display:none">
+      <div id="chat-header-presence" style="display:none;align-items:center;gap:5px;">
         <div id="chat-header-dot"></div>
         <span id="chat-header-lastseen"></span>
       </div>
@@ -388,16 +441,17 @@
 <div id="toast"></div>
 
 <script type="module">
-  import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  import { getAnalytics }     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+  import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getAnalytics }   from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove,
-           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy,
-           getDocs, getDocsFromServer }
+           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, getDocs }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
+  // ── Hardcoded privileged emails ──
   const OWNER_EMAIL = 'boydj23@greyhigh.school.nz';
+  const ADMIN_EMAIL = 'detlaffcameron@gmail.com';
 
   const firebaseConfig = {
     apiKey: "AIzaSyAWBmQd-YuBmwwjSSyZz0qFVGoHA-t9QzI",
@@ -414,57 +468,57 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  let currentUser    = null;
-  let myUsername     = '';
-  let myRole         = 'member';
-  let activeFriend   = null;
-  let chatUnsub      = null;
-  let userUnsub      = null;
-  let presenceUnsub  = null;
-  let allUsersCache  = {};   // uid -> userData
+  let currentUser   = null;
+  let myUsername    = '';
+  let myRole        = 'member';
+  let myNickname    = '';
+  let activeFriend  = null;
+  let chatUnsub     = null;
+  let userUnsub     = null;
+  let discoverCache = [];   // all users for discover panel
 
   // ── Helpers ──
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   function toast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg; el.classList.add('show');
-    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2500);
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2600);
   }
-  function roleLabel(r) {
-    return { owner:'Owner', admin:'Admin', moderator:'Moderator', member:'Member' }[r] || 'Member';
-  }
-  function roleCss(r) {
-    return { owner:'role-owner', admin:'role-admin', moderator:'role-moderator', member:'role-member' }[r] || 'role-member';
-  }
+  const roleLabel = r => ({ owner:'Owner', admin:'Admin', moderator:'Moderator', member:'Member' }[r] || 'Member');
+  const roleCss   = r => 'role-' + (r || 'member');
+
   function fmtLastSeen(ts) {
     if (!ts) return '';
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     const diff = Date.now() - d.getTime();
-    if (diff < 60000) return 'just now';
-    if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    if (diff < 60000)    return 'just now';
+    if (diff < 3600000)  return `${Math.floor(diff/60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
     return d.toLocaleDateString();
   }
+  const ONLINE_THRESHOLD = 3 * 60 * 1000;
+  const isOnline = ts => {
+    if (!ts) return false;
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return Date.now() - d.getTime() < ONLINE_THRESHOLD;
+  };
 
-  // ── Presence ──
-  const PRESENCE_THRESHOLD = 3 * 60 * 1000; // 3 min = online
-  function isOnline(lastSeenTs) {
-    if (!lastSeenTs) return false;
-    const d = lastSeenTs.toDate ? lastSeenTs.toDate() : new Date(lastSeenTs);
-    return Date.now() - d.getTime() < PRESENCE_THRESHOLD;
-  }
+  // ── Presence heartbeat ──
+  let _hb;
   function heartbeat() {
     if (!currentUser) return;
-    updateDoc(doc(db, 'users', currentUser.uid), { lastSeen: serverTimestamp() }).catch(()=>{});
+    updateDoc(doc(db,'users',currentUser.uid), { lastSeen: serverTimestamp() }).catch(()=>{});
   }
-  let _hb;
   function startHeartbeat() {
-    heartbeat();
-    clearInterval(_hb);
-    _hb = setInterval(heartbeat, 60000);
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) heartbeat();
-    });
+    heartbeat(); clearInterval(_hb); _hb = setInterval(heartbeat, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) heartbeat(); });
+  }
+
+  // ── Determine role for an email ──
+  function pinnedRole(email) {
+    if (email === OWNER_EMAIL) return 'owner';
+    if (email === ADMIN_EMAIL) return 'admin';
+    return null;
   }
 
   // ── Auth ──
@@ -473,33 +527,35 @@
     catch(e) { toast(e.message); }
   };
   window.doSignOut = async () => {
-    await updateDoc(doc(db,'users',currentUser.uid), { lastSeen: serverTimestamp() });
+    if (currentUser) await updateDoc(doc(db,'users',currentUser.uid), { lastSeen: serverTimestamp() }).catch(()=>{});
     fbSignOut(auth);
   };
 
   onAuthStateChanged(auth, async user => {
     if (user) {
       currentUser = user;
-      const uid   = user.uid;
-      const ref   = doc(db, 'users', uid);
-      const snap  = await getDoc(ref);
+      const uid  = user.uid;
+      const ref  = doc(db, 'users', uid);
+      const snap = await getDoc(ref);
 
-      // Determine role — owner is pinned by email
-      let role = 'member';
-      if (user.email === OWNER_EMAIL) role = 'owner';
-      else if (snap.exists()) role = snap.data().role || 'member';
+      // Determine role — pinned emails always get their fixed role
+      const forced = pinnedRole(user.email);
+      let role = forced || (snap.exists() ? snap.data().role || 'member' : 'member');
 
       if (!snap.exists()) {
         myUsername = (user.displayName || user.email.split('@')[0]).replace(/\s+/g,'_');
+        myNickname = '';
         await setDoc(ref, {
           uid, username: myUsername, email: user.email,
-          photo: user.photoURL||'', friends:[], requests:[], role, lastSeen: serverTimestamp()
+          photo: user.photoURL||'', friends:[], requests:[],
+          role, nickname: '', lastSeen: serverTimestamp()
         });
       } else {
         myUsername = snap.data().username;
-        // Always enforce owner role for owner email
-        if (user.email === OWNER_EMAIL && snap.data().role !== 'owner') {
-          await updateDoc(ref, { role: 'owner' });
+        myNickname = snap.data().nickname || '';
+        // Enforce pinned role if needed
+        if (forced && snap.data().role !== forced) {
+          await updateDoc(ref, { role: forced });
         }
       }
       myRole = role;
@@ -511,86 +567,89 @@
       startUserListener(uid);
       startHeartbeat();
     } else {
-      currentUser = null; myUsername=''; myRole='member'; activeFriend=null;
-      if (chatUnsub)    chatUnsub();
-      if (userUnsub)    userUnsub();
-      if (presenceUnsub) presenceUnsub();
+      currentUser = null; myUsername = ''; myRole = 'member'; myNickname = ''; activeFriend = null;
+      if (chatUnsub)  chatUnsub();
+      if (userUnsub)  userUnsub();
       clearInterval(_hb);
-      document.getElementById('auth-screen').style.display='flex';
-      document.getElementById('app').style.display='none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
     }
   });
 
   function refreshProfileUI() {
     document.getElementById('profile-uname').textContent = myUsername;
     document.getElementById('profile-email').textContent = currentUser.email;
+    const nickDisplay = document.getElementById('profile-nick-display');
+    nickDisplay.textContent = myNickname ? `"${myNickname}"` : '';
+    document.getElementById('my-nickname').value = myNickname;
     const rl = document.getElementById('profile-role-line');
     rl.textContent = roleLabel(myRole);
     rl.className = 'profile-role-line ' + roleCss(myRole);
     const img = document.getElementById('profile-img');
-    if (currentUser.photoURL) img.src = currentUser.photoURL; else img.style.display='none';
+    if (currentUser.photoURL) img.src = currentUser.photoURL; else img.style.display = 'none';
     const badge = document.getElementById('my-role-badge');
     badge.textContent = roleLabel(myRole);
-    badge.className = 'role-' + myRole;
-    badge.style.border = '1px solid';
+    badge.className = roleCss(myRole);
+    badge.style.cssText = 'font-size:9px;letter-spacing:1px;padding:2px 6px;border:1px solid;text-transform:uppercase;';
   }
 
   function showAdminTabIfEligible() {
     const tab = document.getElementById('admin-tab');
-    if (myRole === 'owner' || myRole === 'admin') {
-      tab.style.display = '';
-      loadAdminPanel();
-    }
+    if (myRole === 'owner' || myRole === 'admin') tab.style.display = '';
+    else tab.style.display = 'none';
   }
 
-  // ── Live user listener ──
+  // ── Live user listener (own doc) ──
   function startUserListener(uid) {
     if (userUnsub) userUnsub();
     userUnsub = onSnapshot(doc(db,'users',uid), snap => {
       const d = snap.data() || {};
-      // update role if changed externally
-      if (d.role && d.role !== myRole && currentUser.email !== OWNER_EMAIL) {
+      // Sync role if changed externally (but not for pinned emails)
+      if (!pinnedRole(currentUser.email) && d.role && d.role !== myRole) {
         myRole = d.role;
         refreshProfileUI();
         showAdminTabIfEligible();
+      }
+      // Sync nickname if force-changed by admin
+      const serverNick = d.nickname || '';
+      if (serverNick !== myNickname) {
+        myNickname = serverNick;
+        refreshProfileUI();
+        if (serverNick) toast(`An admin set your nickname to "${serverNick}"`);
       }
       renderFriends(d.friends || []);
       renderRequests(d.requests || []);
     });
   }
 
-  // ── Render friends ──
+  // ── Friends list ──
   async function renderFriends(friends) {
     const list = document.getElementById('friends-list');
-    if (!friends.length) {
-      list.innerHTML = '<div class="list-empty">no friends yet</div>'; return;
-    }
+    if (!friends.length) { list.innerHTML = '<div class="list-empty">no friends yet</div>'; return; }
     list.innerHTML = '';
 
-    // Fetch presence info for all friends
-    const presenceMap = {};
+    const infoMap = {};
     await Promise.all(friends.map(async f => {
-      const q = query(collection(db,'users'), where('username','==',f));
-      const s = await getDocs(q);
+      const s = await getDocs(query(collection(db,'users'), where('username','==',f)));
       if (!s.empty) {
         const d = s.docs[0].data();
-        presenceMap[f] = { online: isOnline(d.lastSeen), lastSeen: d.lastSeen, role: d.role||'member' };
-        allUsersCache[s.docs[0].id] = d;
+        infoMap[f] = { online: isOnline(d.lastSeen), lastSeen: d.lastSeen, role: d.role||'member', nickname: d.nickname||'' };
       }
     }));
 
     friends.forEach(f => {
-      const info = presenceMap[f] || { online: false, lastSeen: null, role: 'member' };
-      const div = document.createElement('div');
+      const info = infoMap[f] || { online:false, lastSeen:null, role:'member', nickname:'' };
+      const div  = document.createElement('div');
       div.className = 'friend-item' + (activeFriend === f ? ' active-chat' : '');
       div.innerHTML = `
         <div class="avatar-wrap">
           <div class="friend-avatar">${esc(f.charAt(0).toUpperCase())}</div>
-          <div class="presence-dot ${info.online ? 'online' : ''}"></div>
+          <div class="presence-dot ${info.online?'online':''}"></div>
         </div>
         <div class="friend-info">
           <div class="friend-name-row">
             <span class="friend-name">${esc(f)}</span>
+            ${info.nickname ? `<span class="nickname-tag">"${esc(info.nickname)}"</span>` : ''}
             <span class="role-pip ${info.role}">${roleLabel(info.role)}</span>
           </div>
           <div class="last-seen">${info.online ? 'online' : (info.lastSeen ? fmtLastSeen(info.lastSeen) : '')}</div>
@@ -601,38 +660,34 @@
     });
   }
 
-  // ── Render requests ──
+  // ── Requests ──
   function renderRequests(reqs) {
-    const tab = document.getElementById('req-tab');
-    tab.textContent = reqs.length ? `Req (${reqs.length})` : 'Requests';
+    const tab  = document.getElementById('req-tab');
+    tab.textContent = reqs.length ? `Req(${reqs.length})` : 'Req';
     const list = document.getElementById('requests-list');
     if (!reqs.length) { list.innerHTML = '<div class="list-empty">no requests</div>'; return; }
     list.innerHTML = '';
     reqs.forEach(r => {
       const div = document.createElement('div');
       div.className = 'req-item';
-      div.innerHTML = `
-        <span class="req-name">${esc(r)}</span>
-        <div class="req-actions">
-          <button class="plain">Accept</button>
-          <button class="plain">Decline</button>
-        </div>
-      `;
-      div.querySelectorAll('button')[0].onclick = () => acceptReq(r);
-      div.querySelectorAll('button')[1].onclick = () => declineReq(r);
+      div.innerHTML = `<span class="req-name">${esc(r)}</span><div class="req-actions"></div>`;
+      const acts = div.querySelector('.req-actions');
+      const ab = document.createElement('button'); ab.className='plain'; ab.textContent='Accept'; ab.onclick=()=>acceptReq(r);
+      const db2 = document.createElement('button'); db2.className='plain'; db2.textContent='Decline'; db2.onclick=()=>declineReq(r);
+      acts.appendChild(ab); acts.appendChild(db2);
       list.appendChild(div);
     });
   }
 
-  // ── Add friend ──
+  // ── Add friend (manual) ──
   window.sendFriendRequest = async () => {
-    const toUsername = document.getElementById('friend-input').value.trim();
-    if (!toUsername) return;
-    if (toUsername === myUsername) { toast('Cannot add yourself.'); return; }
-    const s = await getDocs(query(collection(db,'users'), where('username','==',toUsername)));
+    const to = document.getElementById('friend-input').value.trim();
+    if (!to) return;
+    if (to === myUsername) { toast('Cannot add yourself.'); return; }
+    const s = await getDocs(query(collection(db,'users'), where('username','==',to)));
     if (s.empty) { toast('User not found.'); return; }
     await updateDoc(doc(db,'users',s.docs[0].id), { requests: arrayUnion(myUsername) });
-    toast(`Request sent to ${toUsername}.`);
+    toast(`Request sent to ${to}.`);
     document.getElementById('friend-input').value = '';
   };
 
@@ -652,24 +707,94 @@
   }
   window.declineReq = declineReq;
 
+  // ── Discover / Quick Add ──
+  window.loadDiscover = async () => {
+    document.getElementById('discover-list').innerHTML = '<div class="list-empty">loading...</div>';
+    const snap = await getDocs(collection(db,'users'));
+    // Get my current friends + requests sent
+    const meSnap = await getDoc(doc(db,'users',currentUser.uid));
+    const myFriends  = meSnap.data()?.friends || [];
+    const myRequests = meSnap.data()?.requests || [];
+
+    discoverCache = [];
+    snap.docs.forEach(d => {
+      const data = d.data();
+      if (d.id === currentUser.uid) return;  // skip self
+      discoverCache.push({ uid: d.id, ...data });
+    });
+
+    // Shuffle for "random" feel
+    for (let i = discoverCache.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [discoverCache[i], discoverCache[j]] = [discoverCache[j], discoverCache[i]];
+    }
+
+    renderDiscover(discoverCache, myFriends);
+  };
+
+  function renderDiscover(users, myFriends) {
+    const list  = document.getElementById('discover-list');
+    const query = document.getElementById('discover-search').value.toLowerCase();
+    const filtered = users.filter(u =>
+      !query ||
+      (u.username||'').toLowerCase().includes(query) ||
+      (u.email||'').toLowerCase().includes(query)
+    );
+
+    if (!filtered.length) { list.innerHTML = '<div class="list-empty">no users found</div>'; return; }
+    list.innerHTML = '';
+    filtered.forEach(u => {
+      const isFriend  = myFriends.includes(u.username);
+      const div = document.createElement('div');
+      div.className = 'discover-item';
+      div.innerHTML = `
+        <div class="avatar-wrap">
+          <div class="friend-avatar" style="width:28px;height:28px;font-size:11px">${esc((u.username||'?').charAt(0).toUpperCase())}</div>
+          <div class="presence-dot ${isOnline(u.lastSeen)?'online':''}"></div>
+        </div>
+        <div class="discover-info">
+          <div class="discover-name">${esc(u.username||'unknown')} ${u.nickname ? `<span style="font-size:9px;color:var(--muted2);font-style:italic">"${esc(u.nickname)}"</span>` : ''}</div>
+          <div class="discover-email">${esc(u.email||'')}</div>
+        </div>
+      `;
+      const btn = document.createElement('button');
+      btn.className = 'quick-add-btn' + (isFriend ? ' sent' : '');
+      btn.textContent = isFriend ? 'Friends' : '+ Add';
+      if (!isFriend) {
+        btn.onclick = async () => {
+          btn.textContent = 'Sent'; btn.className = 'quick-add-btn sent';
+          await updateDoc(doc(db,'users',u.uid), { requests: arrayUnion(myUsername) });
+          toast(`Request sent to ${u.username}.`);
+        };
+      }
+      div.appendChild(btn);
+      list.appendChild(div);
+    });
+  }
+
+  window.filterDiscover = async () => {
+    if (!discoverCache.length) { await window.loadDiscover(); return; }
+    const meSnap    = await getDoc(doc(db,'users',currentUser.uid));
+    const myFriends = meSnap.data()?.friends || [];
+    renderDiscover(discoverCache, myFriends);
+  };
+
   // ── Open chat ──
   function openChat(friendName, presenceInfo) {
     activeFriend = friendName;
-
     document.querySelectorAll('.friend-item').forEach(el => {
-      const fn = el.querySelector('.friend-name');
-      el.classList.toggle('active-chat', fn?.textContent === friendName);
+      el.classList.toggle('active-chat', el.querySelector('.friend-name')?.textContent === friendName);
     });
 
+    const nick = presenceInfo?.nickname ? ` "${esc(presenceInfo.nickname)}"` : '';
     document.getElementById('chat-header-text').innerHTML =
-      `<span style="color:var(--muted)">chatting with</span>&nbsp;<span style="color:var(--text)">${esc(friendName)}</span>`;
+      `<span style="color:var(--muted)">chatting with</span>&nbsp;<span style="color:var(--text)">${esc(friendName)}${nick}</span>`;
 
-    // Presence in header
     if (presenceInfo) {
       const dot = document.getElementById('chat-header-dot');
       dot.className = presenceInfo.online ? 'online' : '';
       document.getElementById('chat-header-lastseen').textContent =
-        presenceInfo.online ? 'online' : (presenceInfo.lastSeen ? 'last seen ' + fmtLastSeen(presenceInfo.lastSeen) : '');
+        presenceInfo.online ? 'online' : (presenceInfo.lastSeen ? 'last seen '+fmtLastSeen(presenceInfo.lastSeen) : '');
       document.getElementById('chat-header-presence').style.display = 'flex';
     }
 
@@ -680,8 +805,6 @@
     if (chatUnsub) chatUnsub();
     const roomId = [myUsername, friendName].sort().join('__');
     const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','asc'));
-
-    // Watch friend's role for badge in messages
     let friendRole = presenceInfo?.role || 'member';
 
     chatUnsub = onSnapshot(q, snap => {
@@ -689,14 +812,16 @@
       area.innerHTML = '';
       if (snap.empty) { area.innerHTML='<div class="chat-placeholder">no messages yet</div>'; return; }
       snap.docs.forEach(d => {
-        const data = d.data();
-        const isMe = data.from === myUsername;
-        const role = isMe ? myRole : (data.role || friendRole);
-        const row  = document.createElement('div');
+        const data  = d.data();
+        const isMe  = data.from === myUsername;
+        const role  = isMe ? myRole : (data.role || friendRole);
+        const nick  = isMe ? myNickname : (presenceInfo?.nickname||'');
+        const row   = document.createElement('div');
         row.className = 'msg-row ' + (isMe ? 'me' : 'them');
         row.innerHTML = `
           <div class="msg-sender-row">
             <span class="msg-sender">${esc(data.from)}</span>
+            ${nick ? `<span class="msg-nick">"${esc(nick)}"</span>` : ''}
             <span class="msg-role-pip ${role}">${roleLabel(role)}</span>
           </div>
           <div class="msg-bubble">${esc(data.msg)}</div>
@@ -722,14 +847,12 @@
     heartbeat();
   };
 
-  // ── Change username ──
+  // ── Change username (own) ──
   window.changeUsername = async () => {
     const newName = document.getElementById('new-username').value.trim();
     if (!newName) { toast('Enter a username.'); return; }
     if (newName === myUsername) { toast('Same as current.'); return; }
-    if (!/^[a-zA-Z0-9_]{2,20}$/.test(newName)) {
-      toast('2–20 chars: letters, numbers, underscores only.'); return;
-    }
+    if (!/^[a-zA-Z0-9_]{2,20}$/.test(newName)) { toast('2–20 chars: letters, numbers, underscores.'); return; }
     const s = await getDocs(query(collection(db,'users'), where('username','==',newName)));
     if (!s.empty) { toast('Username already taken.'); return; }
     await updateDoc(doc(db,'users',currentUser.uid), { username: newName });
@@ -739,15 +862,21 @@
     toast('Username updated.');
   };
 
+  // ── Save own nickname ──
+  window.saveMyNickname = async () => {
+    const nick = document.getElementById('my-nickname').value.trim().slice(0, 30);
+    await updateDoc(doc(db,'users',currentUser.uid), { nickname: nick });
+    myNickname = nick;
+    document.getElementById('profile-nick-display').textContent = nick ? `"${nick}"` : '';
+    toast(nick ? `Nickname set to "${nick}".` : 'Nickname cleared.');
+  };
+
   // ── Admin portal ──
   async function loadAdminPanel() {
     const snap = await getDocs(collection(db,'users'));
     const list = document.getElementById('admin-user-list');
     list.innerHTML = '';
 
-    const ROLE_OPTIONS = ['member','moderator','admin'];
-    // Owner can also assign owner — but we won't include it to prevent accidental reassignment
-    // Admin cannot assign admin or owner
     const canAssignRoles = myRole === 'owner'
       ? ['member','moderator','admin']
       : ['member','moderator'];
@@ -755,32 +884,42 @@
     snap.docs.forEach(d => {
       const data = d.data();
       const uid  = d.id;
-
-      // Can't change owner's role via portal
-      if (data.email === OWNER_EMAIL) {
-        const row = document.createElement('div');
-        row.className = 'admin-user-row';
-        row.innerHTML = `
-          <div class="admin-uname">${esc(data.username)}<br><span style="font-size:9px;color:var(--muted2)">${esc(data.email)}</span></div>
-          <span class="role-pip owner" style="font-size:9px;padding:2px 5px">Owner</span>
-        `;
-        list.appendChild(row); return;
-      }
-
-      // Admins can't change other admins (only owner can)
       const currentRole = data.role || 'member';
-      const isEditable = myRole === 'owner' || currentRole !== 'admin';
+      const isOwnerRow  = data.email === OWNER_EMAIL;
+      const isAdminRow  = data.email === ADMIN_EMAIL;
+      // Only owner can edit admin; no one can edit owner
+      const editable = !isOwnerRow && (myRole === 'owner' || !isAdminRow);
 
       const row = document.createElement('div');
       row.className = 'admin-user-row';
+
+      let controlsHTML = '';
+      if (isOwnerRow) {
+        controlsHTML = `<span class="role-pip owner" style="font-size:9px;padding:2px 5px">Owner</span>`;
+      } else if (!editable) {
+        controlsHTML = `<span class="role-pip admin" style="font-size:9px;padding:2px 5px">Admin</span>`;
+      } else {
+        controlsHTML = `
+          <div class="admin-controls">
+            <select class="role-select" id="sel-${uid}">
+              ${canAssignRoles.map(r=>`<option value="${r}" ${r===currentRole?'selected':''}>${roleLabel(r)}</option>`).join('')}
+            </select>
+            <button class="small-btn" onclick="applyRole('${uid}','${esc(data.username)}')">Role</button>
+            <input class="nick-input" id="nick-${uid}" placeholder="force nick" value="${esc(data.nickname||'')}" maxlength="30" />
+            <button class="small-btn" onclick="forceNickname('${uid}','${esc(data.username)}')">Nick</button>
+          </div>
+        `;
+      }
+
       row.innerHTML = `
-        <div class="admin-uname">${esc(data.username)}<br><span style="font-size:9px;color:var(--muted2)">${esc(data.email||'')}</span></div>
-        ${isEditable ? `
-          <select class="role-select" id="sel-${uid}">
-            ${canAssignRoles.map(r => `<option value="${r}" ${r===currentRole?'selected':''}>${roleLabel(r)}</option>`).join('')}
-          </select>
-          <button class="apply-btn" onclick="applyRole('${uid}', '${esc(data.username)}')">Apply</button>
-        ` : `<span class="role-pip admin" style="font-size:9px;padding:2px 5px">${roleLabel(currentRole)}</span>`}
+        <div class="admin-row-top">
+          <div class="admin-uname">
+            ${esc(data.username||'—')}
+            ${data.nickname ? `<span class="msg-nick" style="font-size:9px;color:var(--muted2)"> "${esc(data.nickname)}"</span>` : ''}
+          </div>
+          <span class="admin-email">${esc(data.email||'')}</span>
+        </div>
+        ${controlsHTML}
       `;
       list.appendChild(row);
     });
@@ -788,23 +927,38 @@
   window.loadAdminPanel = loadAdminPanel;
 
   window.applyRole = async (uid, username) => {
-    const sel  = document.getElementById('sel-' + uid);
+    const sel = document.getElementById('sel-'+uid);
     if (!sel) return;
-    const role = sel.value;
-    await updateDoc(doc(db,'users',uid), { role });
-    toast(`${username} is now ${roleLabel(role)}.`);
+    // Prevent demoting pinned admin via portal (double-check)
+    const targetSnap = await getDoc(doc(db,'users',uid));
+    if (targetSnap.data()?.email === ADMIN_EMAIL && myRole !== 'owner') {
+      toast('Only the owner can change that user\'s role.'); return;
+    }
+    await updateDoc(doc(db,'users',uid), { role: sel.value });
+    toast(`${username} is now ${roleLabel(sel.value)}.`);
+  };
+
+  window.forceNickname = async (uid, username) => {
+    const input = document.getElementById('nick-'+uid);
+    if (!input) return;
+    const nick = input.value.trim().slice(0,30);
+    await updateDoc(doc(db,'users',uid), { nickname: nick });
+    toast(nick ? `Set ${username}'s nickname to "${nick}".` : `Cleared ${username}'s nickname.`);
   };
 
   // ── Tab switch ──
+  const ALL_TABS = ['friends','requests','discover','profile','admin'];
   window.switchTab = tab => {
-    const tabs = ['friends','requests','profile','admin'];
-    tabs.forEach((t, i) => {
-      const navBtn = document.querySelectorAll('.nav-tab')[i];
-      if (navBtn) navBtn.classList.toggle('active', t === tab);
-      const panel = document.getElementById('tab-' + t);
+    ALL_TABS.forEach(t => {
+      const btn   = document.getElementById(`tab-btn-${t}`);
+      const panel = document.getElementById('tab-'+t);
       if (panel) panel.classList.toggle('active', t === tab);
     });
-    if (tab === 'admin') loadAdminPanel();
+    document.querySelectorAll('.nav-tab').forEach((el,i) => {
+      el.classList.toggle('active', ALL_TABS[i] === tab);
+    });
+    if (tab === 'admin')   loadAdminPanel();
+    if (tab === 'discover') window.loadDiscover();
   };
 </script>
 </body>
