@@ -1,5 +1,5 @@
-# flashChat
-A simple messaging website using google authenticator and firebase (fire store)
+# FlashChat
+A simple messaging website using google authenticator and firebase (firestore)
 
 **Features;**
 Quick-add, Friend requests, Inbox, DMs, Nicknames.
