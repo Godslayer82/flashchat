@@ -558,7 +558,7 @@
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove,
-           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, getDocs }
+           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, limit, getDocs }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const OWNER_EMAIL = 'boydj23@greyhigh.school.nz';
@@ -593,6 +593,7 @@
   ];
 
   const SLOWMODE_DELAY = 10000;
+  const MESSAGE_LIMIT  = 25;
 
   function hasPerm(role, key) {
     const p = PERMISSIONS.find(p => p.key === key);
@@ -944,14 +945,22 @@
 
     if (chatUnsub) chatUnsub();
     const roomId = [myUsername, friendName].sort().join('__');
-    const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','asc'));
+    // Newest 25 first (cheap on reads), then flipped to chronological order for display.
+    const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','desc'), limit(MESSAGE_LIMIT));
     let friendRole = presenceInfo?.role || 'member';
 
     chatUnsub = onSnapshot(q, snap => {
       const area = document.getElementById('chat-area');
       area.innerHTML = '';
       if (snap.empty) { area.innerHTML='<div class="chat-placeholder">no messages yet</div>'; return; }
-      snap.docs.forEach(d => {
+      if (snap.docs.length >= MESSAGE_LIMIT) {
+        const note = document.createElement('div');
+        note.style.cssText = 'text-align:center;font-size:var(--nav-fs);color:var(--muted);letter-spacing:1px;padding:4px 0 8px;flex-shrink:0';
+        note.textContent = `— showing last ${MESSAGE_LIMIT} messages —`;
+        area.appendChild(note);
+      }
+      const docsChronological = [...snap.docs].reverse();
+      docsChronological.forEach(d => {
         const data = d.data();
         const isMe = data.from === myUsername;
         const role = isMe ? myRole : (data.role || friendRole);
