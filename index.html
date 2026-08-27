@@ -158,6 +158,8 @@
     .discover-info { flex: 1; min-width: 0; }
     .discover-name { font-size: var(--base-fs); }
     .discover-email { font-size: var(--nav-fs); color: var(--muted2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mutual-friends { font-size: var(--nav-fs); color: var(--muted2); margin-top: 2px; letter-spacing: 0; }
+    .mutual-friends .mutual-count { color: var(--text); }
     .quick-add-btn {
       background: none; border: 1px solid var(--border2); color: var(--muted2);
       padding: 3px 8px; cursor: pointer; font-family: inherit;
@@ -302,6 +304,16 @@
     #chat-area::-webkit-scrollbar-thumb { background: var(--border2); }
 
     .chat-placeholder { margin: auto; font-size: var(--small-fs); color: var(--muted); letter-spacing: 2px; text-align: center; line-height: 2.2; }
+
+    #load-older-btn {
+      display: none; align-self: center; flex-shrink: 0;
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      padding: 4px 12px; cursor: pointer; font-family: inherit;
+      font-size: var(--nav-fs); letter-spacing: 2px; text-transform: uppercase;
+      transition: border-color .15s, color .15s; margin: 4px 0 2px;
+    }
+    #load-older-btn:hover { border-color: #444; color: var(--text); }
+    #load-older-btn.visible { display: block; }
 
     .msg-row { display: flex; flex-direction: column; flex-shrink: 0; }
     .msg-row.me { align-items: flex-end; }
@@ -538,6 +550,7 @@
       <button class="add-btn" onclick="sendFriendRequest()">+ Add</button>
     </div>
     <div id="chat-area">
+      <button id="load-older-btn" onclick="loadOlderMessages()">↑ load older messages</button>
       <div class="chat-placeholder">select a friend<br/>to start chatting</div>
     </div>
     <div id="perm-denied-msg"></div>
@@ -609,6 +622,8 @@
   let userUnsub     = null;
   let discoverCache = [];
   let lastSentTs    = 0;
+  let oldestPageDoc = null;   // cursor for backward pagination
+  let loadingOlder  = false;
 
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -631,6 +646,40 @@
     return d.toLocaleDateString();
   }
 
+  // Detect current session's device type and write it alongside lastSeen
+  function detectDevice() {
+    const ua = navigator.userAgent;
+    if (/Mobile|Android|iPhone|iPod/.test(ua)) return 'mobile';
+    if (/iPad|Tablet/.test(ua)) return 'tablet';
+    return 'desktop';
+  }
+
+  // Returns a human-readable "last active" summary across all known devices
+  function fmtPerDevicePresence(userData) {
+    const devices = userData.devices || {};
+    const deviceLabel = { desktop: '🖥 desktop', mobile: '📱 mobile', tablet: '📟 tablet' };
+    const entries = Object.entries(devices)
+      .filter(([,ts]) => ts)
+      .map(([dev, ts]) => {
+        const label = deviceLabel[dev] || dev;
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        const diff = Date.now() - d.getTime();
+        const online = diff < ONLINE_MS;
+        return { label, online, timeStr: online ? 'now' : fmtLastSeen(ts), diff };
+      })
+      .sort((a,b) => a.diff - b.diff); // most recent first
+
+    if (!entries.length) return null;
+    const anyOnline = entries.some(e => e.online);
+    if (anyOnline) {
+      const activeDevs = entries.filter(e => e.online).map(e => e.label).join(', ');
+      return { online: true, text: `active on ${activeDevs}` };
+    }
+    // Most recent device last seen
+    const top = entries[0];
+    return { online: false, text: `last on ${top.label} · ${top.timeStr}` };
+  }
+
   const ONLINE_MS = 3 * 60 * 1000;
   const isOnline  = ts => {
     if (!ts) return false;
@@ -638,10 +687,14 @@
     return Date.now() - d.getTime() < ONLINE_MS;
   };
 
+  const _myDevice = detectDevice();
   let _hb;
   function heartbeat() {
     if (!currentUser) return;
-    updateDoc(doc(db,'users',currentUser.uid), { lastSeen: serverTimestamp() }).catch(()=>{});
+    updateDoc(doc(db,'users',currentUser.uid), {
+      lastSeen: serverTimestamp(),
+      [`devices.${_myDevice}`]: serverTimestamp()
+    }).catch(()=>{});
   }
   function startHeartbeat() {
     heartbeat(); clearInterval(_hb); _hb = setInterval(heartbeat, 60000);
@@ -871,15 +924,18 @@
     const snap   = await getDocs(collection(db,'users'));
     const meSnap = await getDoc(doc(db,'users',currentUser.uid));
     const myFriends = meSnap.data()?.friends || [];
+    const myFriendSet = new Set(myFriends);
     discoverCache = [];
     snap.docs.forEach(d => {
       if (d.id === currentUser.uid) return;
-      discoverCache.push({ uid: d.id, ...d.data() });
+      const data = d.data();
+      // Count mutual friends: intersection of their friends and my friends
+      const theirFriends = data.friends || [];
+      const mutualCount = theirFriends.filter(f => myFriendSet.has(f)).length;
+      discoverCache.push({ uid: d.id, ...data, mutualCount });
     });
-    for (let i = discoverCache.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [discoverCache[i], discoverCache[j]] = [discoverCache[j], discoverCache[i]];
-    }
+    // Sort by mutual friends descending, then shuffle within same-mutual-count groups
+    discoverCache.sort((a, b) => b.mutualCount - a.mutualCount);
     renderDiscover(discoverCache, myFriends);
   };
 
@@ -903,6 +959,7 @@
         <div class="discover-info">
           <div class="discover-name">${esc(u.username||'unknown')}${u.nickname?` <span style="font-size:var(--nav-fs);color:var(--muted2);font-style:italic">"${esc(u.nickname)}"</span>`:''}</div>
           <div class="discover-email">${esc(u.email||'')}</div>
+          ${u.mutualCount > 0 ? `<div class="mutual-friends"><span class="mutual-count">${u.mutualCount}</span> mutual friend${u.mutualCount !== 1 ? 's' : ''}</div>` : ''}
         </div>
       `;
       const btn = document.createElement('button');
@@ -926,8 +983,58 @@
     renderDiscover(discoverCache, meSnap.data()?.friends || []);
   };
 
+  function updateChatHeaderPresence(data) {
+    const perDev = fmtPerDevicePresence(data);
+    const dot = document.getElementById('chat-header-dot');
+    const span = document.getElementById('chat-header-lastseen');
+    if (perDev) {
+      dot.className = perDev.online ? 'online' : '';
+      span.textContent = perDev.text;
+    } else {
+      // Fallback to plain lastSeen
+      const online = isOnline(data.lastSeen);
+      dot.className = online ? 'online' : '';
+      span.textContent = online ? 'online' : (data.lastSeen ? 'last seen '+fmtLastSeen(data.lastSeen) : '');
+    }
+    document.getElementById('chat-header-presence').classList.add('show');
+  }
+
+  function buildMsgRow(d, friendRole, presenceInfo) {
+    const data = d.data();
+    const isMe = data.from === myUsername;
+    const role = isMe ? myRole : (data.role || friendRole);
+    const nick = isMe ? myNickname : (presenceInfo?.nickname||'');
+    const row  = document.createElement('div');
+    row.className = 'msg-row ' + (isMe ? 'me' : 'them');
+    row.dataset.msgId = d.id;
+
+    let contentHTML = '';
+    if (data.type === 'image') {
+      contentHTML = `<img class="msg-media" src="${esc(data.url)}" onclick="window.open('${esc(data.url)}','_blank')" />`;
+    } else if (data.type === 'link') {
+      const safeUrl = esc(data.msg);
+      contentHTML = `<a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--admin-color);word-break:break-all">${safeUrl}</a>`;
+    } else {
+      contentHTML = esc(data.msg);
+    }
+
+    row.innerHTML = `
+      <div class="msg-sender-row">
+        <span class="msg-sender">${esc(data.from)}</span>
+        ${nick ? `<span class="msg-nick">"${esc(nick)}"</span>` : ''}
+        <span class="msg-role-pip ${role}">${roleLabel(role)}</span>
+        ${data.type === 'image' ? `<span class="msg-badge">media</span>` : ''}
+        ${data.type === 'link'  ? `<span class="msg-badge">link</span>` : ''}
+      </div>
+      <div class="msg-bubble">${contentHTML}</div>
+    `;
+    return row;
+  }
+
   function openChat(friendName, presenceInfo) {
     activeFriend = friendName;
+    oldestPageDoc = null;
+    loadingOlder  = false;
     document.querySelectorAll('.friend-item').forEach(el => {
       el.classList.toggle('active-chat', el.querySelector('.friend-name')?.textContent === friendName);
     });
@@ -935,65 +1042,99 @@
     document.getElementById('chat-header-text').innerHTML =
       `<span style="color:var(--muted)">to</span>&nbsp;<span style="color:var(--text)">${esc(friendName)}${nick}</span>`;
     if (presenceInfo) {
-      const dot = document.getElementById('chat-header-dot');
-      dot.className = presenceInfo.online ? 'online' : '';
-      document.getElementById('chat-header-lastseen').textContent =
-        presenceInfo.online ? 'online' : (presenceInfo.lastSeen ? 'last seen '+fmtLastSeen(presenceInfo.lastSeen) : '');
-      document.getElementById('chat-header-presence').classList.add('show');
+      updateChatHeaderPresence(presenceInfo);
     }
     refreshInputBarPerms();
 
     if (chatUnsub) chatUnsub();
     const roomId = [myUsername, friendName].sort().join('__');
-    // Newest 25 first (cheap on reads), then flipped to chronological order for display.
     const q = query(collection(db,'chats',roomId,'messages'), orderBy('ts','desc'), limit(MESSAGE_LIMIT));
     let friendRole = presenceInfo?.role || 'member';
+    const olderBtn = document.getElementById('load-older-btn');
 
     chatUnsub = onSnapshot(q, snap => {
       const area = document.getElementById('chat-area');
-      area.innerHTML = '';
-      if (snap.empty) { area.innerHTML='<div class="chat-placeholder">no messages yet</div>'; return; }
-      if (snap.docs.length >= MESSAGE_LIMIT) {
-        const note = document.createElement('div');
-        note.style.cssText = 'text-align:center;font-size:var(--nav-fs);color:var(--muted);letter-spacing:1px;padding:4px 0 8px;flex-shrink:0';
-        note.textContent = `— showing last ${MESSAGE_LIMIT} messages —`;
-        area.appendChild(note);
+      // Clear everything except the load-older button
+      [...area.children].forEach(c => { if (c.id !== 'load-older-btn') c.remove(); });
+
+      if (snap.empty) {
+        olderBtn.classList.remove('visible');
+        const ph = document.createElement('div');
+        ph.className = 'chat-placeholder';
+        ph.textContent = 'no messages yet';
+        area.appendChild(ph);
+        return;
       }
-      const docsChronological = [...snap.docs].reverse();
-      docsChronological.forEach(d => {
-        const data = d.data();
-        const isMe = data.from === myUsername;
-        const role = isMe ? myRole : (data.role || friendRole);
-        const nick = isMe ? myNickname : (presenceInfo?.nickname||'');
-        const row  = document.createElement('div');
-        row.className = 'msg-row ' + (isMe ? 'me' : 'them');
 
-        let contentHTML = '';
-        if (data.type === 'image') {
-          contentHTML = `<img class="msg-media" src="${esc(data.url)}" onclick="window.open('${esc(data.url)}','_blank')" />`;
-        } else if (data.type === 'link') {
-          const safeUrl = esc(data.msg);
-          contentHTML = `<a href="${safeUrl}" target="_blank" rel="noopener" style="color:var(--admin-color);word-break:break-all">${safeUrl}</a>`;
-        } else {
-          contentHTML = esc(data.msg);
-        }
+      // The oldest doc in this page becomes our pagination cursor
+      const chronological = [...snap.docs].reverse();
+      oldestPageDoc = chronological[0]; // earliest in current view
 
-        row.innerHTML = `
-          <div class="msg-sender-row">
-            <span class="msg-sender">${esc(data.from)}</span>
-            ${nick ? `<span class="msg-nick">"${esc(nick)}"</span>` : ''}
-            <span class="msg-role-pip ${role}">${roleLabel(role)}</span>
-            ${data.type === 'image' ? `<span class="msg-badge">media</span>` : ''}
-            ${data.type === 'link'  ? `<span class="msg-badge">link</span>` : ''}
-          </div>
-          <div class="msg-bubble">${contentHTML}</div>
-        `;
+      // Show button if we hit the cap (there may be older messages)
+      olderBtn.classList.toggle('visible', snap.docs.length >= MESSAGE_LIMIT);
+      olderBtn.textContent = '↑ load older messages';
+      olderBtn.disabled = false;
+
+      chronological.forEach(d => {
+        const row = buildMsgRow(d, friendRole, presenceInfo);
         area.appendChild(row);
       });
       area.scrollTop = area.scrollHeight;
     });
   }
   window.openChat = openChat;
+
+  window.loadOlderMessages = async () => {
+    if (!activeFriend || !oldestPageDoc || loadingOlder) return;
+    loadingOlder = true;
+    const olderBtn = document.getElementById('load-older-btn');
+    olderBtn.textContent = 'loading...';
+    olderBtn.disabled = true;
+
+    const { startAfter: firestoreStartAfter } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+    const roomId = [myUsername, activeFriend].sort().join('__');
+    const q = query(
+      collection(db,'chats',roomId,'messages'),
+      orderBy('ts','desc'),
+      firestoreStartAfter(oldestPageDoc),
+      limit(MESSAGE_LIMIT)
+    );
+    const snap = await getDocs(q);
+    loadingOlder = false;
+
+    if (snap.empty) {
+      olderBtn.textContent = '— beginning of conversation —';
+      olderBtn.style.cursor = 'default';
+      olderBtn.disabled = true;
+      return;
+    }
+
+    const area = document.getElementById('chat-area');
+    const chronological = [...snap.docs].reverse();
+    // New oldest cursor
+    oldestPageDoc = chronological[0];
+
+    // Insert older rows after the button, before existing messages
+    const insertRef = olderBtn.nextSibling;
+    const savedScroll = area.scrollHeight - area.scrollTop;
+
+    const meSnap = await getDoc(doc(db,'users',currentUser.uid));
+    const friendSnap = await getDocs(query(collection(db,'users'), where('username','==',activeFriend)));
+    const friendRole = friendSnap.empty ? 'member' : (friendSnap.docs[0].data().role || 'member');
+    const presenceInfo = friendSnap.empty ? null : friendSnap.docs[0].data();
+
+    chronological.forEach(d => {
+      const row = buildMsgRow(d, friendRole, presenceInfo);
+      area.insertBefore(row, insertRef);
+    });
+
+    // Maintain scroll position so new content appears above without jumping
+    area.scrollTop = area.scrollHeight - savedScroll;
+
+    olderBtn.classList.toggle('visible', snap.docs.length >= MESSAGE_LIMIT);
+    olderBtn.textContent = '↑ load older messages';
+    olderBtn.disabled = false;
+  };
 
   function checkSlowmode() {
     if (hasPerm(myRole, 'slowmodeBypass')) return true;
