@@ -571,7 +571,7 @@
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove,
-           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, limit, getDocs }
+           collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, limit, getDocs, startAfter }
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
   const OWNER_EMAIL = 'boydj23@greyhigh.school.nz';
@@ -1091,12 +1091,11 @@
     olderBtn.textContent = 'loading...';
     olderBtn.disabled = true;
 
-    const { startAfter: firestoreStartAfter } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
     const roomId = [myUsername, activeFriend].sort().join('__');
     const q = query(
       collection(db,'chats',roomId,'messages'),
       orderBy('ts','desc'),
-      firestoreStartAfter(oldestPageDoc),
+      startAfter(oldestPageDoc),
       limit(MESSAGE_LIMIT)
     );
     const snap = await getDocs(q);
